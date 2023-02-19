@@ -23,9 +23,11 @@ export const initScene = (el) => {
   _clock = new THREE.Clock()
   const loader = new THREE.TextureLoader()
   _diffuseMap = loader.load('assets/images/FloorsCheckerboard_S_Diffuse.jpg', animate)
+  _diffuseMap.wrapS = _diffuseMap.wrapT = THREE.RepeatWrapping
   _diffuseMap.minFilter = THREE.LinearFilter
+  _diffuseMap.repeat.set(2, 1) // temp
   _diffuseMap.generateMipmaps = false
-  const geometry = new THREE.PlaneGeometry(2, 2)
+  const geometry = new THREE.PlaneGeometry(4, 2)
   const material = new THREE.MeshBasicMaterial({ map: _diffuseMap })
   const mesh = new THREE.Mesh(geometry, material)
   _scene.add(mesh)
