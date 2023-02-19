@@ -1,5 +1,6 @@
 export const createUISlice = (set, get) => {
   return {
-    createUISlice: true,
+    selectedTool: 'pencil',
+    setSelectedTool: (newSelectedTool) => set(() => ({ selectedTool: newSelectedTool })),
   }
 }
