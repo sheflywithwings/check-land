@@ -7,9 +7,11 @@ let _renderer
 let _clock
 let _dataTexture
 let _diffuseMap
-let last = 0
+let _last = 0
+let _diffuseMesh
 
 const _raycaster = new THREE.Raycaster()
+const _pointer = new THREE.Vector2()
 const _position = new THREE.Vector2()
 const _color = new THREE.Color()
 
@@ -30,8 +32,8 @@ export const initScene = (domEl) => {
   _diffuseMap.generateMipmaps = false
   const geometry = new THREE.PlaneGeometry(4, 2)
   const material = new THREE.MeshBasicMaterial({ map: _diffuseMap })
-  const mesh = new THREE.Mesh(geometry, material)
-  _scene.add(mesh)
+  _diffuseMesh = new THREE.Mesh(geometry, material)
+  _scene.add(_diffuseMesh)
   const width = 32
   const height = 32
   const data = new Uint8Array(width * height * 4)
@@ -49,40 +51,12 @@ export const initScene = (domEl) => {
   domEl.addEventListener('mouseup', onMouseUp)
 }
 
-const onWindowResize = () => {
-  if (_domEl) {
-    const _elRect = _domEl.getBoundingClientRect()
-    console.log('three#app#onWindowResize: _elRect: ', _elRect)
-    _camera.aspect = _elRect.width / _elRect.height
-    _camera.updateProjectionMatrix()
-    _renderer.setSize(_elRect.width, _elRect.height)
-  }
-}
-
-const onMouseDown = (event) => {
-  if (_domEl) {
-    console.log('three#app#onMouseDown: event: ', event)
-  }
-}
-
-const onMouseMove = (event) => {
-  if (_domEl) {
-    // console.log('three#app#onMouseMove: event: ', event)
-  }
-}
-
-const onMouseUp = (event) => {
-  if (_domEl) {
-    console.log('three#app#onMouseUp: event: ', event)
-  }
-}
-
 const animate = () => {
   requestAnimationFrame(animate)
   const elapsedTime = _clock.getElapsedTime()
 
-  if (elapsedTime - last > 0.1) {
-    last = elapsedTime
+  if (elapsedTime - _last > 0.1) {
+    _last = elapsedTime
     // _position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
     // _position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
 
@@ -114,4 +88,45 @@ const updateDataTexture = (texture) => {
     data[stride + 2] = b
     data[stride + 3] = 1
   }
+}
+
+const onWindowResize = () => {
+  if (!_domEl) return
+  const _elRect = _domEl.getBoundingClientRect()
+  console.log('three#app#onWindowResize: _elRect: ', _elRect)
+  _camera.aspect = _elRect.width / _elRect.height
+  _camera.updateProjectionMatrix()
+  _renderer.setSize(_elRect.width, _elRect.height)
+}
+
+const onMouseDown = (event) => {
+  if (!_domEl) return
+  console.log('three#app#onMouseDown: event: ', event)
+  const _intersections = []
+  _raycaster.setFromCamera(_pointer, _camera)
+  _raycaster.intersectObjects([_diffuseMesh], true, _intersections)
+  console.log('three#app#onMouseDown: _intersections: ', _intersections)
+
+  if (_intersections.length > 0) {
+    const intersectPoint = _intersections[0].point.clone()
+    console.log('three#app#onMouseDown: intersectPoint: ', intersectPoint)
+  }
+}
+
+const onMouseMove = (event) => {
+  if (!_domEl) return
+  updatePointer(event)
+}
+
+const onMouseUp = (event) => {
+  if (!_domEl) return
+  console.log('three#app#onMouseUp: event: ', event)
+}
+
+const updatePointer = (event) => {
+  if (!_domEl) return
+  const rect = _domEl.getBoundingClientRect()
+  _pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+  _pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1
+  // console.log('three#app#updatePointer: _pointer: ', _pointer)
 }
