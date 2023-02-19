@@ -56,14 +56,14 @@ export const animate = () => {
 
   if (elapsedTime - last > 0.1) {
     last = elapsedTime
-    position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
-    position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+    // position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+    // position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
 
-    // generate new color data
-    updateDataTexture(_dataTexture)
+    // // generate new color data
+    // updateDataTexture(_dataTexture)
 
-    // perform copy from src to dest texture to a random position
-    _renderer.copyTextureToTexture(position, _dataTexture, _diffuseMap)
+    // // perform copy from src to dest texture to a random position
+    // _renderer.copyTextureToTexture(position, _dataTexture, _diffuseMap)
   }
 
   _renderer.render(_scene, _camera)
