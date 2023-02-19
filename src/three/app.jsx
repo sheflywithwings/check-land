@@ -41,7 +41,12 @@ export const initScene = (domEl) => {
   _renderer.setSize(elRect.width, elRect.height)
   console.log('three#app#initScene: _renderer: ', _renderer)
   domEl.appendChild(_renderer.domElement)
+
+  // Events
   window.addEventListener('resize', onWindowResize)
+  domEl.addEventListener('mousedown', onMouseDown)
+  domEl.addEventListener('mousemove', onMouseMove)
+  domEl.addEventListener('mouseup', onMouseUp)
 }
 
 const onWindowResize = () => {
@@ -51,6 +56,24 @@ const onWindowResize = () => {
     _camera.aspect = _elRect.width / _elRect.height
     _camera.updateProjectionMatrix()
     _renderer.setSize(_elRect.width, _elRect.height)
+  }
+}
+
+const onMouseDown = (event) => {
+  if (_domEl) {
+    console.log('three#app#onMouseDown: event: ', event)
+  }
+}
+
+const onMouseMove = (event) => {
+  if (_domEl) {
+    // console.log('three#app#onMouseMove: event: ', event)
+  }
+}
+
+const onMouseUp = (event) => {
+  if (_domEl) {
+    console.log('three#app#onMouseUp: event: ', event)
   }
 }
 
