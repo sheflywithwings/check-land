@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-let _el
+let _domEl
 let _camera
 let _scene
 let _renderer
@@ -9,13 +9,14 @@ let _dataTexture
 let _diffuseMap
 let last = 0
 
-const position = new THREE.Vector2()
-const color = new THREE.Color()
+const _raycaster = new THREE.Raycaster()
+const _position = new THREE.Vector2()
+const _color = new THREE.Color()
 
-export const initScene = (el) => {
-  _el = el
-  console.log('three#app#initScene: el: ', el)
-  const elRect = el.getBoundingClientRect()
+export const initScene = (domEl) => {
+  _domEl = domEl
+  console.log('three#app#initScene: domEl: ', domEl)
+  const elRect = domEl.getBoundingClientRect()
   console.log('three#app#initScene: elRect: ', elRect)
   _camera = new THREE.PerspectiveCamera(70, elRect.width / elRect.height, 0.01, 10)
   _camera.position.z = 2
@@ -38,13 +39,14 @@ export const initScene = (el) => {
   _renderer = new THREE.WebGLRenderer({ antialias: true })
   _renderer.setPixelRatio(window.devicePixelRatio)
   _renderer.setSize(elRect.width, elRect.height)
-  el.appendChild(_renderer.domElement)
+  console.log('three#app#initScene: _renderer: ', _renderer)
+  domEl.appendChild(_renderer.domElement)
   window.addEventListener('resize', onWindowResize)
 }
 
-export const onWindowResize = (e) => {
-  if (_el) {
-    const _elRect = _el.getBoundingClientRect()
+const onWindowResize = () => {
+  if (_domEl) {
+    const _elRect = _domEl.getBoundingClientRect()
     console.log('three#app#onWindowResize: _elRect: ', _elRect)
     _camera.aspect = _elRect.width / _elRect.height
     _camera.updateProjectionMatrix()
@@ -52,35 +54,35 @@ export const onWindowResize = (e) => {
   }
 }
 
-export const animate = () => {
+const animate = () => {
   requestAnimationFrame(animate)
   const elapsedTime = _clock.getElapsedTime()
 
   if (elapsedTime - last > 0.1) {
     last = elapsedTime
-    // position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
-    // position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+    // _position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+    // _position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
 
     // // generate new color data
     // updateDataTexture(_dataTexture)
 
-    // // perform copy from src to dest texture to a random position
-    // _renderer.copyTextureToTexture(position, _dataTexture, _diffuseMap)
+    // // perform copy from src to dest texture to a random _position
+    // _renderer.copyTextureToTexture(_position, _dataTexture, _diffuseMap)
   }
 
   _renderer.render(_scene, _camera)
 }
 
-export const updateDataTexture = (texture) => {
+const updateDataTexture = (texture) => {
   const size = texture.image.width * texture.image.height
   const data = texture.image.data
 
   // generate a random color and update texture data
-  color.setHex(Math.random() * 0xffffff)
+  _color.setHex(Math.random() * 0xffffff)
 
-  const r = Math.floor(color.r * 255)
-  const g = Math.floor(color.g * 255)
-  const b = Math.floor(color.b * 255)
+  const r = Math.floor(_color.r * 255)
+  const g = Math.floor(_color.g * 255)
+  const b = Math.floor(_color.b * 255)
 
   for (let i = 0; i < size; i++) {
     const stride = i * 4
