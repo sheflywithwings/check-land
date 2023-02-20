@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { assertDefined } from './assert'
 import { CAMERA_FAR, CAMERA_NEAR, MAP_HEIGHT, MAP_WIDTH, VIEW_DISTANCE } from './constants'
 import { Dimension } from './dimension'
@@ -29,7 +30,7 @@ export class ThreeWorld {
     this.diffuseMap.repeat.set(mapWidth / mapHeight, 1)
     this.diffuseMap.generateMipmaps = false
     const geometry = new THREE.PlaneGeometry(mapWidth, mapHeight)
-    const material = new THREE.MeshBasicMaterial({ map: this.diffuseMap })
+    const material = new THREE.MeshBasicMaterial({ map: this.diffuseMap, side: THREE.DoubleSide })
     this.diffuseMesh = new THREE.Mesh(geometry, material)
 
     // Dynamic sub texture
@@ -49,6 +50,9 @@ export class ThreeWorld {
     this.domEl = domEl
     domEl.appendChild(this.renderer.domElement)
 
+    // Orbit Controls
+    this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement)
+
     // Events
     window.addEventListener('resize', this.onWindowResize)
     domEl.addEventListener('mousedown', this.onMouseDown)
@@ -63,14 +67,14 @@ export class ThreeWorld {
 
     if (elapsedTime - this.last > 0.1) {
       this.last = elapsedTime
-      // this.position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
-      // this.position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+      this.position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+      this.position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
 
-      // // generate new color data
-      // this.updateDataTexture()
+      // generate new color data
+      this.updateDataTexture()
 
-      // // perform copy from src to dest texture to a random position
-      // this.renderer.copyTextureToTexture(this.position, this.dataTexture, this.diffuseMap)
+      // perform copy from src to dest texture to a random position
+      this.renderer.copyTextureToTexture(this.position, this.dataTexture, this.diffuseMap)
     }
 
     this.renderer.render(this.scene, this.camera)
@@ -115,7 +119,7 @@ export class ThreeWorld {
 
     if (_intersections.length > 0) {
       const intersectPoint = _intersections[0].point.clone()
-      // console.log('utils#three.world#onMouseDown: intersectPoint: ', intersectPoint)
+      console.log('utils#three.world#onMouseDown: intersectPoint: ', intersectPoint)
     }
   }
 
