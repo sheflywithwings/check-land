@@ -17,26 +17,34 @@ export class Dimension {
    * @param unit measure unit
    * @returns float
    */
-  static fromMeasure(measure, unit) {
+  static realFromMeasure(measure, unit) {
     if (!unit) unit = Config.getStringValue('dimUnit')
-    console.log('utils#dimension#cmFromMeasure: unit: ', unit)
     const scale = Config.getNumericValue('scale')
     assertDefined(measure, unit, scale)
+    let real
 
     switch (unit) {
       case DIM_FEET:
-        return Dimension.round(measure * 30.480016459203095991 * scale)
+        real = Dimension.round(measure * 30.480016459203095991 * scale)
+        break
       case DIM_INCH:
-        return Dimension.round(measure * 2.5400013716002578512 * scale)
+        real = Dimension.round(measure * 2.5400013716002578512 * scale)
+        break
       case DIM_MILLIMETER:
-        return Dimension.round(measure * 0.10000005400001014955 * scale)
+        real = Dimension.round(measure * 0.10000005400001014955 * scale)
+        break
       case DIM_CENTIMETER:
-        return Dimension.round(measure * scale)
+        real = Dimension.round(measure * scale)
+        break
       case DIM_METER:
-        return Dimension.round(measure * 100 * scale)
+        real = Dimension.round(measure * 100 * scale)
+        break
       default:
-        return measure
+        real = measure
+        break
     }
+
+    return real
   }
 
   /**
@@ -46,25 +54,57 @@ export class Dimension {
    * @param unit measure unit
    * @returns float
    */
-  static toMeasure(real, unit) {
+  static realToMeasure(real, unit) {
     if (!unit) unit = Config.getStringValue('dimUnit')
-    console.log('utils#dimension#cmToMeasure: unit: ', unit)
     const scale = Config.getNumericValue('scale')
     assertDefined(real, unit, scale)
+    let dimension
 
     switch (unit) {
       case DIM_FEET:
-        return Dimension.round((real * 0.032808416666669996953) / scale)
+        dimension = Dimension.round((real * 0.032808416666669996953) / scale)
+        break
       case DIM_INCH:
-        return Dimension.round((real * 0.3937) / scale)
+        dimension = Dimension.round((real * 0.3937) / scale)
+        break
       case DIM_MILLIMETER:
-        return Dimension.round((real * 10) / scale)
+        dimension = Dimension.round((real * 10) / scale)
+        break
       case DIM_CENTIMETER:
-        return Dimension.round(real / scale)
+        dimension = Dimension.round(real / scale)
+        break
       case DIM_METER:
-        return Dimension.round((real * 0.01) / scale)
+        dimension = Dimension.round((real * 0.01) / scale)
+        break
       default:
-        return real
+        dimension = real
+        break
     }
+
+    return dimension
+  }
+
+  /**
+   * Convert pixel number to real number
+   *
+   * @param pixel pixel number to be converted
+   * @returns float
+   */
+  static pixelToReal(pixel) {
+    const scale = Config.getNumericValue('scale')
+    assertDefined(pixel, scale)
+    return Dimension.round(pixel * scale)
+  }
+
+  /**
+   * Convert real number to pixel number
+   *
+   * @param real real number to be converted
+   * @returns float
+   */
+  static realToPixel(real) {
+    const scale = Config.getNumericValue('scale')
+    assertDefined(real, scale)
+    return Dimension.round(real / scale)
   }
 }

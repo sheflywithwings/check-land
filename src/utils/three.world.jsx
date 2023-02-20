@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { assertDefined } from './assert'
+import { CAMERA_FAR, CAMERA_NEAR, MAP_HEIGHT, MAP_WIDTH, VIEW_DISTANCE } from './constants'
 import { Dimension } from './dimension'
 
 export class ThreeWorld {
@@ -12,32 +13,40 @@ export class ThreeWorld {
   textureLoader = new THREE.TextureLoader()
 
   constructor({ domEl }) {
-    this.domEl = domEl
-    console.log('utils#three.world#constructor: domEl: ', domEl)
+    // Basic vars
     const elRect = domEl.getBoundingClientRect()
-    console.log('utils#three.world#constructor: elRect: ', elRect)
-    console.log('utils#three.world#constructor: fromMeasure: ', Dimension.fromMeasure(10))
-    console.log('utils#three.world#constructor: toMeasure: ', Dimension.toMeasure(10))
-    this.camera = new THREE.PerspectiveCamera(70, elRect.width / elRect.height, 0.01, 10)
-    this.camera.position.z = 2
-    this.scene = new THREE.Scene()
+    const cameraNear = Dimension.realFromMeasure(CAMERA_NEAR)
+    const cameraFar = Dimension.realFromMeasure(CAMERA_FAR)
+    const viewDistance = Dimension.realFromMeasure(VIEW_DISTANCE)
+    const mapWidth = Dimension.realFromMeasure(MAP_WIDTH)
+    const mapHeight = Dimension.realFromMeasure(MAP_HEIGHT)
+    const cameraFov = 2 * Math.atan(mapHeight / (2 * viewDistance)) * (180 / Math.PI)
+
+    // Map
     this.diffuseMap = this.textureLoader.load('assets/images/FloorsCheckerboard_S_Diffuse.jpg', this.animate)
     this.diffuseMap.wrapS = this.diffuseMap.wrapT = THREE.RepeatWrapping
     this.diffuseMap.minFilter = THREE.LinearFilter
-    this.diffuseMap.repeat.set(2, 1) // temp
+    this.diffuseMap.repeat.set(mapWidth / mapHeight, 1)
     this.diffuseMap.generateMipmaps = false
-    const geometry = new THREE.PlaneGeometry(4, 2)
+    const geometry = new THREE.PlaneGeometry(mapWidth, mapHeight)
     const material = new THREE.MeshBasicMaterial({ map: this.diffuseMap })
     this.diffuseMesh = new THREE.Mesh(geometry, material)
-    this.scene.add(this.diffuseMesh)
+
+    // Dynamic sub texture
     const width = 32
     const height = 32
     const data = new Uint8Array(width * height * 4)
     this.dataTexture = new THREE.DataTexture(data, width, height)
+
+    // Init scene
+    this.camera = new THREE.PerspectiveCamera(cameraFov, elRect.width / elRect.height, cameraNear, cameraFar)
+    this.camera.position.z = viewDistance
+    this.scene = new THREE.Scene()
+    this.scene.add(this.diffuseMesh)
     this.renderer = new THREE.WebGLRenderer({ antialias: true })
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(elRect.width, elRect.height)
-    console.log('utils#three.world#constructor: renderer: ', this.renderer)
+    this.domEl = domEl
     domEl.appendChild(this.renderer.domElement)
 
     // Events
@@ -48,29 +57,29 @@ export class ThreeWorld {
   }
 
   animate = () => {
-    assertDefined(this.clock, this.last, this.renderer, this.scene, this.camera)
+    assertDefined(this.clock, this.last, this.renderer, this.scene, this.camera, this.position, this.dataTexture, this.diffuseMap, this.updateDataTexture)
     requestAnimationFrame(this.animate)
     const elapsedTime = this.clock.getElapsedTime()
 
     if (elapsedTime - this.last > 0.1) {
       this.last = elapsedTime
-      // position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
-      // position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+      // this.position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+      // this.position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
 
       // // generate new color data
-      // updateDataTexture(dataTexture)
+      // this.updateDataTexture()
 
       // // perform copy from src to dest texture to a random position
-      // renderer.copyTextureToTexture(position, dataTexture, diffuseMap)
+      // this.renderer.copyTextureToTexture(this.position, this.dataTexture, this.diffuseMap)
     }
 
     this.renderer.render(this.scene, this.camera)
   }
 
-  updateDataTexture = (texture) => {
-    assertDefined(texture, this.color)
-    const size = texture.image.width * texture.image.height
-    const data = texture.image.data
+  updateDataTexture = () => {
+    assertDefined(this.dataTexture, this.color)
+    const size = this.dataTexture.image.width * this.dataTexture.image.height
+    const data = this.dataTexture.image.data
 
     // generate a random color and update texture data
     this.color.setHex(Math.random() * 0xffffff)
@@ -90,24 +99,23 @@ export class ThreeWorld {
 
   onWindowResize = () => {
     assertDefined(this.domEl, this.camera, this.renderer)
-    const _elRect = this.domEl.getBoundingClientRect()
-    console.log('utils#three.world#onWindowResize: _elRect: ', _elRect)
-    this.camera.aspect = _elRect.width / _elRect.height
+    const elRect = this.domEl.getBoundingClientRect()
+    this.camera.aspect = elRect.width / elRect.height
     this.camera.updateProjectionMatrix()
-    this.renderer.setSize(_elRect.width, _elRect.height)
+    this.renderer.setSize(elRect.width, elRect.height)
   }
 
   onMouseDown = (event) => {
     assertDefined(this.domEl, this.raycaster, this.pointer, this.camera, this.diffuseMesh)
-    console.log('utils#three.world#onMouseDown: event: ', event)
+    // console.log('utils#three.world#onMouseDown: event: ', event)
     const _intersections = []
     this.raycaster.setFromCamera(this.pointer, this.camera)
     this.raycaster.intersectObjects([this.diffuseMesh], true, _intersections)
-    console.log('utils#three.world#onMouseDown: _intersections: ', _intersections)
+    // console.log('utils#three.world#onMouseDown: _intersections: ', _intersections)
 
     if (_intersections.length > 0) {
       const intersectPoint = _intersections[0].point.clone()
-      console.log('utils#three.world#onMouseDown: intersectPoint: ', intersectPoint)
+      // console.log('utils#three.world#onMouseDown: intersectPoint: ', intersectPoint)
     }
   }
 
@@ -118,7 +126,7 @@ export class ThreeWorld {
 
   onMouseUp = (event) => {
     assertDefined(this.domEl)
-    console.log('utils#three.world#onMouseUp: event: ', event)
+    // console.log('utils#three.world#onMouseUp: event: ', event)
   }
 
   updatePointer = (event) => {
@@ -126,6 +134,5 @@ export class ThreeWorld {
     const rect = this.domEl.getBoundingClientRect()
     this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
     this.pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1
-    // console.log('utils#three.world#updatePointer: pointer: ', pointer)
   }
 }

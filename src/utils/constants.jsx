@@ -8,6 +8,13 @@ export const DIM_MILLIMETER = 'mm'
 
 export const FLOAT_DIGITS = 3
 
+export const MAP_WIDTH = 5000
+export const MAP_HEIGHT = 2500
+export const SCALE = 0.001
+export const VIEW_DISTANCE = MAP_WIDTH / 2
+export const CAMERA_NEAR = 0.01 / SCALE
+export const CAMERA_FAR = MAP_WIDTH
+
 export const vec3 = new THREE.Vector3()
 export const xVec3 = new THREE.Vector3(1, 0, 0)
 export const yVec3 = new THREE.Vector3(0, 1, 0)
