@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { assertDefined } from './assert'
 
 export class ThreeWorld {
   raycaster = new THREE.Raycaster()
@@ -44,6 +45,7 @@ export class ThreeWorld {
   }
 
   animate = () => {
+    assertDefined(this.clock, this.last, this.renderer, this.scene, this.camera)
     requestAnimationFrame(this.animate)
     const elapsedTime = this.clock.getElapsedTime()
 
@@ -63,6 +65,7 @@ export class ThreeWorld {
   }
 
   updateDataTexture = (texture) => {
+    assertDefined(texture, this.color)
     const size = texture.image.width * texture.image.height
     const data = texture.image.data
 
@@ -83,7 +86,7 @@ export class ThreeWorld {
   }
 
   onWindowResize = () => {
-    if (!this.domEl) return
+    assertDefined(this.domEl, this.camera, this.renderer)
     const _elRect = this.domEl.getBoundingClientRect()
     console.log('utils#three.world#onWindowResize: _elRect: ', _elRect)
     this.camera.aspect = _elRect.width / _elRect.height
@@ -92,7 +95,7 @@ export class ThreeWorld {
   }
 
   onMouseDown = (event) => {
-    if (!this.domEl) return
+    assertDefined(this.domEl, this.raycaster, this.pointer, this.camera, this.diffuseMesh)
     console.log('utils#three.world#onMouseDown: event: ', event)
     const _intersections = []
     this.raycaster.setFromCamera(this.pointer, this.camera)
@@ -106,17 +109,17 @@ export class ThreeWorld {
   }
 
   onMouseMove = (event) => {
-    if (!this.domEl) return
+    assertDefined(this.domEl)
     this.updatePointer(event)
   }
 
   onMouseUp = (event) => {
-    if (!this.domEl) return
+    assertDefined(this.domEl)
     console.log('utils#three.world#onMouseUp: event: ', event)
   }
 
   updatePointer = (event) => {
-    if (!this.domEl) return
+    assertDefined(this.domEl, this.pointer)
     const rect = this.domEl.getBoundingClientRect()
     this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
     this.pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1
