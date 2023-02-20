@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { assertDefined } from './assert'
+import { Dimension } from './dimension'
 
 export class ThreeWorld {
   raycaster = new THREE.Raycaster()
@@ -15,6 +16,8 @@ export class ThreeWorld {
     console.log('utils#three.world#constructor: domEl: ', domEl)
     const elRect = domEl.getBoundingClientRect()
     console.log('utils#three.world#constructor: elRect: ', elRect)
+    console.log('utils#three.world#constructor: fromMeasure: ', Dimension.fromMeasure(10))
+    console.log('utils#three.world#constructor: toMeasure: ', Dimension.toMeasure(10))
     this.camera = new THREE.PerspectiveCamera(70, elRect.width / elRect.height, 0.01, 10)
     this.camera.position.z = 2
     this.scene = new THREE.Scene()
