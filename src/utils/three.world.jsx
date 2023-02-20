@@ -121,6 +121,7 @@ export class ThreeWorld {
     if (_intersections.length > 0) {
       const intersectPoint = _intersections[0].point.clone()
       console.log('utils#three.world#onMouseDown: intersectPoint: ', intersectPoint)
+      this.orbitControls.enableRotate = false
     }
   }
 
@@ -132,6 +133,7 @@ export class ThreeWorld {
   onMouseUp = (event) => {
     assertDefined(this.domEl)
     // console.log('utils#three.world#onMouseUp: event: ', event)
+    this.orbitControls.enableRotate = true
   }
 
   updatePointer = (event) => {
