@@ -21,7 +21,8 @@ export class ThreeWorld {
     const viewDistance = Dimension.realFromMeasure(VIEW_DISTANCE)
     const mapWidth = Dimension.realFromMeasure(MAP_WIDTH)
     const mapHeight = Dimension.realFromMeasure(MAP_HEIGHT)
-    const cameraFov = 2 * Math.atan(mapHeight / (2 * viewDistance)) * (180 / Math.PI)
+    const cameraFov = 2 * Math.atan(mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
+    console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
 
     // Map
     this.diffuseMap = this.textureLoader.load('assets/images/FloorsCheckerboard_S_Diffuse.jpg', this.animate)
