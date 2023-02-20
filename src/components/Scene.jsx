@@ -1,9 +1,11 @@
 import { useRef, useEffect } from 'react'
-import { initScene } from '../utils/three.world'
+import { useZustand } from '../store/useZustand'
+import { ThreeWorld } from '../utils/three.world'
 
 let isFirstRender = true
 
 export const Scene = () => {
+  const { setThreeWorld } = useZustand()
   const sceneRef = useRef(null)
 
   useEffect(() => {
@@ -12,7 +14,9 @@ export const Scene = () => {
       el.className = 'absolute w-full h-full'
       sceneRef.current.innerHTML = ''
       sceneRef.current.appendChild(el)
-      initScene(el)
+      const newThreeWorld = new ThreeWorld({ domEl: el })
+      console.log('Scene#useEffect: newThreeWorld: ', newThreeWorld)
+      setThreeWorld(newThreeWorld)
       isFirstRender = false
     }
   }, [])
