@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { initScene } from '../three/app'
+import { initScene } from '../utils/three.world'
 
 let isFirstRender = true
 
