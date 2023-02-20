@@ -68,14 +68,14 @@ export class ThreeWorld {
 
     if (elapsedTime - this.last > 0.1) {
       this.last = elapsedTime
-      this.position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
-      this.position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+      // this.position.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
+      // this.position.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
 
-      // generate new color data
-      this.updateDataTexture()
+      // // generate new color data
+      // this.updateDataTexture()
 
-      // perform copy from src to dest texture to a random position
-      this.renderer.copyTextureToTexture(this.position, this.dataTexture, this.diffuseMap)
+      // // perform copy from src to dest texture to a random position
+      // this.renderer.copyTextureToTexture(this.position, this.dataTexture, this.diffuseMap)
     }
 
     this.renderer.render(this.scene, this.camera)
