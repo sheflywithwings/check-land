@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { assertDefined } from './assert'
-import { CAMERA_FAR, CAMERA_NEAR, MAP_HEIGHT, MAP_WIDTH, VIEW_DISTANCE } from './constants'
+import { CAMERA_FAR, CAMERA_NEAR, ENABLE_ORBIT_CONTROLS, MAP_HEIGHT, MAP_WIDTH, VIEW_DISTANCE } from './constants'
 import { Dimension } from './dimension'
 
 export class ThreeWorld {
@@ -110,7 +110,7 @@ export class ThreeWorld {
       this.orbitControls.enableRotate = false
       this.isOnMap = true
     } else {
-      this.orbitControls.enableRotate = true
+      this.orbitControls.enableRotate = ENABLE_ORBIT_CONTROLS
       this.isOnMap = false
     }
   }
@@ -125,7 +125,7 @@ export class ThreeWorld {
   onMouseUp = (event) => {
     assertDefined(event)
     this.isMouseDown = false
-    this.orbitControls.enableRotate = true
+    this.orbitControls.enableRotate = ENABLE_ORBIT_CONTROLS
   }
 
   updateMouseHandlers = (event) => {
