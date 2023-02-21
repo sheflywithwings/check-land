@@ -8,10 +8,11 @@ export class ThreeWorld {
   raycaster = new THREE.Raycaster()
   pointer = new THREE.Vector2()
   subTexturePos = new THREE.Vector2()
+  voxelPos = new THREE.Vector2()
   color = new THREE.Color()
   clock = new THREE.Clock()
-  last = this.clock.getElapsedTime()
   textureLoader = new THREE.TextureLoader()
+  last = this.clock.getElapsedTime()
 
   constructor({ domEl }) {
     // Basic vars
@@ -112,6 +113,7 @@ export class ThreeWorld {
 
   onMouseDown = (event) => {
     assertDefined(this.domEl, this.raycaster, this.pointer, this.camera, this.diffuseMesh)
+    this.updatePointer(event)
     // console.log('utils#three.world#onMouseDown: event: ', event)
     const _intersections = []
     this.raycaster.setFromCamera(this.pointer, this.camera)
@@ -133,7 +135,7 @@ export class ThreeWorld {
   onMouseUp = (event) => {
     assertDefined(this.domEl)
     // console.log('utils#three.world#onMouseUp: event: ', event)
-    this.orbitControls.enableRotate = true
+    this.orbitControls.enableRotate = false
   }
 
   updatePointer = (event) => {
