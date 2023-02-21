@@ -15,7 +15,8 @@ export class ThreeWorld {
   last = this.clock.getElapsedTime()
 
   constructor({ domEl }) {
-    // Basic vars
+    assertDefined(domEl, window)
+    // Reference vars
     const elRect = domEl.getBoundingClientRect()
     const cameraNear = Dimension.realFromMeasure(CAMERA_NEAR)
     const cameraFar = Dimension.realFromMeasure(CAMERA_FAR)
@@ -24,7 +25,8 @@ export class ThreeWorld {
     const mapHeight = Dimension.realFromMeasure(MAP_HEIGHT)
     const cameraFov = 2 * Math.atan(mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
     console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
-
+    // State vars
+    this.isMouseDown = false
     // Map
     this.diffuseMap = this.textureLoader.load('assets/images/FloorsCheckerboard_S_Diffuse.jpg', this.animate)
     this.diffuseMap.wrapS = this.diffuseMap.wrapT = THREE.RepeatWrapping
@@ -34,13 +36,11 @@ export class ThreeWorld {
     const geometry = new THREE.PlaneGeometry(mapWidth, mapHeight)
     const material = new THREE.MeshBasicMaterial({ map: this.diffuseMap, side: THREE.DoubleSide })
     this.diffuseMesh = new THREE.Mesh(geometry, material)
-
     // Dynamic sub texture
     const width = 32
     const height = 32
     const data = new Uint8Array(width * height * 4)
     this.dataTexture = new THREE.DataTexture(data, width, height)
-
     // Init scene
     this.camera = new THREE.PerspectiveCamera(cameraFov, elRect.width / elRect.height, cameraNear, cameraFar)
     this.camera.position.z = viewDistance
@@ -51,10 +51,8 @@ export class ThreeWorld {
     this.renderer.setSize(elRect.width, elRect.height)
     this.domEl = domEl
     domEl.appendChild(this.renderer.domElement)
-
     // Orbit Controls
     this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement)
-
     // Events
     window.addEventListener('resize', this.onWindowResize)
     domEl.addEventListener('mousedown', this.onMouseDown)
@@ -66,19 +64,15 @@ export class ThreeWorld {
     assertDefined(this.clock, this.last, this.renderer, this.scene, this.camera, this.subTexturePos, this.dataTexture, this.diffuseMap, this.updateDataTexture)
     requestAnimationFrame(this.animate)
     const elapsedTime = this.clock.getElapsedTime()
-
     if (elapsedTime - this.last > 0.1) {
       this.last = elapsedTime
       // this.subTexturePos.x = (32 * THREE.MathUtils.randInt(1, 16)) - 32
       // this.subTexturePos.y = (32 * THREE.MathUtils.randInt(1, 16)) - 32
-
       // // generate new color data
       // this.updateDataTexture()
-
       // // perform copy from src to dest texture to a random position
       // this.renderer.copyTextureToTexture(this.subTexturePos, this.dataTexture, this.diffuseMap)
     }
-
     this.renderer.render(this.scene, this.camera)
   }
 
@@ -86,14 +80,11 @@ export class ThreeWorld {
     assertDefined(this.dataTexture, this.color)
     const size = this.dataTexture.image.width * this.dataTexture.image.height
     const data = this.dataTexture.image.data
-
     // generate a random color and update texture data
     this.color.setHex(Math.random() * 0xffffff)
-
     const r = Math.floor(this.color.r * 255)
     const g = Math.floor(this.color.g * 255)
     const b = Math.floor(this.color.b * 255)
-
     for (let i = 0; i < size; i++) {
       const stride = i * 4
       data[stride] = r
@@ -112,36 +103,58 @@ export class ThreeWorld {
   }
 
   onMouseDown = (event) => {
-    assertDefined(this.domEl, this.raycaster, this.pointer, this.camera, this.diffuseMesh)
-    this.updatePointer(event)
-    // console.log('utils#three.world#onMouseDown: event: ', event)
-    const _intersections = []
-    this.raycaster.setFromCamera(this.pointer, this.camera)
-    this.raycaster.intersectObjects([this.diffuseMesh], true, _intersections)
-    // console.log('utils#three.world#onMouseDown: _intersections: ', _intersections)
-
-    if (_intersections.length > 0) {
-      const intersectPoint = _intersections[0].point.clone()
-      console.log('utils#three.world#onMouseDown: intersectPoint: ', intersectPoint)
+    assertDefined(event)
+    this.isMouseDown = true
+    this.updateMouseHandlers(event)
+    if (this.intersectPoint) {
       this.orbitControls.enableRotate = false
+      this.isOnMap = true
+    } else {
+      this.orbitControls.enableRotate = true
+      this.isOnMap = false
     }
   }
 
   onMouseMove = (event) => {
-    assertDefined(this.domEl)
-    this.updatePointer(event)
+    assertDefined(event)
+    if (this.isMouseDown && this.isOnMap) {
+      this.updateMouseHandlers(event)
+    }
   }
 
   onMouseUp = (event) => {
-    assertDefined(this.domEl)
-    // console.log('utils#three.world#onMouseUp: event: ', event)
-    this.orbitControls.enableRotate = false
+    assertDefined(event)
+    this.isMouseDown = false
+    this.orbitControls.enableRotate = true
+  }
+
+  updateMouseHandlers = (event) => {
+    assertDefined(event, this.updatePointer, this.updateIntersectPoint)
+    this.updatePointer(event)
+    this.updateIntersectPoint()
   }
 
   updatePointer = (event) => {
-    assertDefined(this.domEl, this.pointer)
+    assertDefined(event, this.domEl, this.pointer)
     const rect = this.domEl.getBoundingClientRect()
     this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
     this.pointer.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1
+  }
+
+  updateIntersectPoint = () => {
+    assertDefined(this.raycaster, this.pointer, this.camera, this.diffuseMesh)
+    if (!this.isMouseDown) {
+      this.intersectPoint = undefined
+      return
+    }
+    const _intersections = []
+    this.raycaster.setFromCamera(this.pointer, this.camera)
+    this.raycaster.intersectObjects([this.diffuseMesh], true, _intersections)
+    if (_intersections.length > 0) {
+      this.intersectPoint = _intersections[0].point.clone()
+      console.log('utils#three.world#updateIntersectPoint: intersectPoint: ', this.intersectPoint)
+    } else {
+      this.intersectPoint = undefined
+    }
   }
 }
