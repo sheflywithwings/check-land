@@ -1,16 +1,13 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { assertDefined } from './assert'
-import { CAMERA_FAR, CAMERA_NEAR, ENABLE_ORBIT_CONTROLS, MAP_Y_NUM, MAP_X_NUM, VIEW_DISTANCE, vec3, multiMatrix41, matrix41, matrix42, zVec3 } from './constants'
+import { CAMERA_FAR, CAMERA_NEAR, ENABLE_ORBIT_CONTROLS, MAP_Y_NUM, MAP_X_NUM, VIEW_DISTANCE, vec3, multiMatrix41, matrix41, matrix42, zVec3, color } from './constants'
 import { Dimension } from './dimension'
 
 export class ThreeWorld {
   raycaster = new THREE.Raycaster()
   pointer = new THREE.Vector2()
-  color = new THREE.Color()
-  clock = new THREE.Clock()
   textureLoader = new THREE.TextureLoader()
-  last = this.clock.getElapsedTime()
 
   constructor({ domEl }) {
     assertDefined(domEl, window)
@@ -31,6 +28,7 @@ export class ThreeWorld {
     this.boxNum = MAP_X_NUM * MAP_Y_NUM
     this.boxInstMesh = new THREE.InstancedMesh(
       new THREE.PlaneGeometry(this.boxWidth, this.boxHeight),
+      // new THREE.SphereGeometry(this.boxWidth / 2),
       // Todo: Use shader material later
       new THREE.MeshBasicMaterial({
         color: 'gray',
@@ -71,8 +69,8 @@ export class ThreeWorld {
         i,
         multiMatrix41.multiplyMatrices(
           matrix41.setPosition(vec3.clone().set(
-            -mapHalfWidth + x * this.boxWidth,
-            mapHalfHeight - y * this.boxHeight,
+            -mapHalfWidth + x * this.boxWidth + this.boxWidth / 2,
+            mapHalfHeight - y * this.boxHeight - this.boxHeight / 2,
             0
           )),
           matrix42.makeRotationAxis(zVec3, 0),
@@ -97,28 +95,39 @@ export class ThreeWorld {
   updateIntersectPoint = () => {
     assertDefined(this.raycaster, this.pointer, this.camera, this.boxInstMesh)
     if (!this.isMouseDown) {
-      this.intersectPoint = undefined
+      this.intersection = undefined
       return
     }
     const intersections = []
     this.raycaster.setFromCamera(this.pointer, this.camera)
     this.raycaster.intersectObjects([this.boxInstMesh], true, intersections)
     if (intersections.length > 0) {
-      console.log('utils#three.world#updateIntersectPoint: intersections: ', intersections)
-      this.intersectPoint = intersections[0].point.clone()
+      // console.log('utils#three.world#updateIntersectPoint: intersections: ', intersections)
+      this.intersection = intersections[0]
     } else {
-      this.intersectPoint = undefined
+      this.intersection = undefined
+    }
+  }
+
+  paintSelectedBox = () => {
+    assertDefined(this.boxInstMesh)
+    if (this.intersection) {
+      const selInstanceId = this.intersection.instanceId
+      if (this.prevSelInstanceId !== selInstanceId) {
+        this.prevSelInstanceId = selInstanceId
+        console.log(selInstanceId)
+        // this.boxInstMesh.setColorAt(selInstanceId, color.setHex(0xff0000))
+        // this.boxInstMesh.instanceColor.needsUpdate = true
+      }
     }
   }
 
   animate = () => {
-    assertDefined(this.clock, this.last, this.renderer, this.scene, this.camera, this.boxInstMesh)
-    requestAnimationFrame(this.animate)
-    const elapsedTime = this.clock.getElapsedTime()
-    if (elapsedTime - this.last > 0.1) {
-      this.last = elapsedTime
-    }
-    this.renderer.render(this.scene, this.camera)
+    assertDefined(this.renderer, this.scene, this.camera, this.boxInstMesh)
+    requestAnimationFrame((t) => {
+      this.animate()
+      this.renderer.render(this.scene, this.camera)
+    })
   }
 
   onWindowResize = () => {
@@ -133,7 +142,8 @@ export class ThreeWorld {
     assertDefined(event)
     this.isMouseDown = true
     this.updateMouseHandlers(event)
-    if (this.intersectPoint) {
+    this.paintSelectedBox()
+    if (this.intersection) {
       this.orbitControls.enableRotate = false
       this.isOnMap = true
     } else {
@@ -146,6 +156,7 @@ export class ThreeWorld {
     assertDefined(event)
     if (this.isMouseDown && this.isOnMap) {
       this.updateMouseHandlers(event)
+      this.paintSelectedBox()
     }
   }
 

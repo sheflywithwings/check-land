@@ -8,8 +8,8 @@ export const DIM_MILLIMETER = 'mm'
 
 export const FLOAT_DIGITS = 3
 
-export const MAP_X_NUM = 50
-export const MAP_Y_NUM = 25
+export const MAP_X_NUM = 20
+export const MAP_Y_NUM = 10
 export const SCALE = 0.001
 export const VIEW_DISTANCE = MAP_X_NUM
 export const CAMERA_NEAR = 0.01 / SCALE
@@ -24,3 +24,5 @@ export const zVec3 = new THREE.Vector3(0, 0, 1)
 export const multiMatrix41 = new THREE.Matrix4()
 export const matrix41 = new THREE.Matrix4()
 export const matrix42 = new THREE.Matrix4()
+
+export const color = new THREE.Color()
