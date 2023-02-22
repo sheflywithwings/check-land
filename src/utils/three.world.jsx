@@ -41,7 +41,7 @@ export class ThreeWorld {
     this.mapWidth = Dimension.realFromMeasure(MAP_X_NUM)
     this.mapHeight = Dimension.realFromMeasure(MAP_Y_NUM)
     const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
-    console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
+    // console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
     // State vars
     this.isMouseDown = false
     // Check box
@@ -87,9 +87,6 @@ export class ThreeWorld {
     this.animate()
     // Events
     window.addEventListener('resize', this.onWindowResize)
-    domEl.addEventListener('mousedown', this.onMouseDown)
-    domEl.addEventListener('mousemove', this.onMouseMove)
-    domEl.addEventListener('mouseup', this.onMouseUp)
   }
 
   setBoxMatrix2d = () => {
@@ -173,11 +170,20 @@ export class ThreeWorld {
     this.renderer.setSize(elRect.width, elRect.height)
   }
 
-  onMouseDown = (event) => {
+  onMouseDown = ({ event, tool }) => {
+    console.log('utils#three.world#onMouseDown: tool: ', tool)
     assertDefined(event)
     this.isMouseDown = true
     this.updateMouseHandlers(event)
-    this.paintSelectedBox()
+    switch (tool) {
+      case 'pencil':
+        this.paintSelectedBox()
+        break
+      case 'fill':
+        break
+      case 'check':
+        break
+    }
     if (this.intersection) {
       this.orbitControls.enableRotate = false
       this.isOnMap = true
@@ -187,15 +193,23 @@ export class ThreeWorld {
     }
   }
 
-  onMouseMove = (event) => {
+  onMouseMove = ({ event, tool }) => {
     assertDefined(event)
     if (this.isMouseDown && this.isOnMap) {
       this.updateMouseHandlers(event)
-      this.paintSelectedBox()
+      switch (tool) {
+        case 'pencil':
+          this.paintSelectedBox()
+          break
+        case 'fill':
+          break
+        case 'check':
+          break
+      }
     }
   }
 
-  onMouseUp = (event) => {
+  onMouseUp = ({ event, tool }) => {
     assertDefined(event)
     this.isMouseDown = false
     this.orbitControls.enableRotate = ENABLE_ORBIT_CONTROLS

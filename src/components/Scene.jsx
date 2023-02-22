@@ -5,7 +5,7 @@ import { ThreeWorld } from '../utils/three.world'
 let isFirstRender = true
 
 export const Scene = () => {
-  const { setThreeWorld } = useZustand()
+  const { threeWorld, setThreeWorld, selectedTool } = useZustand()
   const sceneRef = useRef(null)
 
   useEffect(() => {
@@ -22,6 +22,21 @@ export const Scene = () => {
   }, [])
 
   return (
-    <div className='absolute w-full h-full' ref={sceneRef} />
+    <div
+      className='absolute w-full h-full'
+      ref={sceneRef}
+      onMouseDown={event => {
+        if (!threeWorld) return
+        threeWorld.onMouseDown({ event, tool: selectedTool })
+      }}
+      onMouseMove={event => {
+        if (!threeWorld) return
+        threeWorld.onMouseMove({ event, tool: selectedTool })
+      }}
+      onMouseUp={event => {
+        if (!threeWorld) return
+        threeWorld.onMouseUp({ event, tool: selectedTool })
+      }}
+    />
   )
 }
