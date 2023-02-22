@@ -8,8 +8,8 @@ export const DIM_MILLIMETER = 'mm'
 
 export const FLOAT_DIGITS = 3
 
-export const MAP_X_NUM = 20
-export const MAP_Y_NUM = 10
+export const MAP_X_NUM = 40
+export const MAP_Y_NUM = 20
 export const SCALE = 0.001
 export const VIEW_DISTANCE = MAP_X_NUM
 export const CAMERA_NEAR = 0.01 / SCALE
@@ -22,6 +22,7 @@ export const LIGHT_C_HEX = 0x222222
 export const FOG_HEX = 0x001f3f
 export const FOG_DENSITY = 0.002
 export const MAP_BACK_HEX = 0x111111
+export const MAP_UNUSABLE_BACK_HEX = 0xff0000
 export const PAINT_HEX = 0x00ff00
 
 export const BACK_COLOR = new THREE.Color(0x666666)

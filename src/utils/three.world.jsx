@@ -21,7 +21,8 @@ import {
   FOG_HEX,
   FOG_DENSITY,
   MAP_BACK_HEX,
-  PAINT_HEX
+  PAINT_HEX,
+  MAP_UNUSABLE_BACK_HEX
 } from './constants'
 import { Dimension } from './dimension'
 
@@ -45,6 +46,7 @@ export class ThreeWorld {
     // State vars
     this.isMouseDown = false
     // Check box
+    this.unusableInstanceIds = []
     this.boxWidth = this.mapWidth / MAP_X_NUM
     this.boxHeight = this.mapHeight / MAP_Y_NUM
     this.boxNum = MAP_X_NUM * MAP_Y_NUM
@@ -90,12 +92,24 @@ export class ThreeWorld {
   }
 
   setBoxMatrix2d = () => {
-    assertDefined(this.boxInstMesh, this.mapWidth, this.mapHeight, this.boxWidth, this.boxHeight, this.boxNum)
+    assertDefined(this.boxInstMesh, this.mapWidth, this.mapHeight, this.boxWidth, this.boxHeight, this.boxNum, this.unusableInstanceIds)
     const mapHalfWidth = this.mapWidth / 2
     const mapHalfHeight = this.mapHeight / 2
     for (let i = 0; i < this.boxNum; i++) {
       const x = i % MAP_X_NUM
       const y = (i - x) / MAP_X_NUM
+      /* Start to make unusable boxes */
+      const boundingBoxRowNum = MAP_Y_NUM * 0.1
+      const boundingBoxColNum = MAP_X_NUM * 0.1
+      if (
+        x < boundingBoxColNum ||
+        x > (MAP_X_NUM - boundingBoxColNum) ||
+        y < boundingBoxRowNum ||
+        y > (MAP_Y_NUM - boundingBoxRowNum)
+      ) {
+        this.unusableInstanceIds.push(i)
+      }
+      /* End to make unusable boxes */
       this.boxInstMesh.setMatrixAt(
         i,
         multiMatrix41.multiplyMatrices(
@@ -107,8 +121,13 @@ export class ThreeWorld {
           matrix42.makeRotationAxis(zVec3, 0),
         )
       )
-      this.boxInstMesh.setColorAt(i, color.setHex(MAP_BACK_HEX))
+      if (this.unusableInstanceIds.indexOf(i) > -1) {
+        this.boxInstMesh.setColorAt(i, color.setHex(MAP_UNUSABLE_BACK_HEX))
+      } else {
+        this.boxInstMesh.setColorAt(i, color.setHex(MAP_BACK_HEX))
+      }
     }
+    console.log('utils#three.world#setBoxMatrix2d: this.unusableInstanceIds: ', this.unusableInstanceIds)
   }
 
   updateMouseHandlers = (event) => {
@@ -142,10 +161,10 @@ export class ThreeWorld {
   }
 
   paintSelectedBox = () => {
-    assertDefined(this.boxInstMesh)
+    assertDefined(this.boxInstMesh, this.unusableInstanceIds)
     if (this.intersection) {
       const selInstanceId = this.intersection.instanceId
-      if (this.prevSelInstanceId !== selInstanceId) {
+      if (this.prevSelInstanceId !== selInstanceId && this.unusableInstanceIds.indexOf(selInstanceId) === -1) {
         this.prevSelInstanceId = selInstanceId
         console.log('utils#three.world#paintSelectedBox: selInstanceId: ', selInstanceId)
         this.boxInstMesh.setColorAt(selInstanceId, color.setHex(PAINT_HEX))
