@@ -4,7 +4,7 @@ import FillSvg from '../assets/icons/fill.svg'
 import CheckSvg from '../assets/icons/check.svg'
 import { useZustand } from '../store/useZustand'
 
-export const ToolList = () => {
+export const Toolbar = () => {
   const { selectedTool, setSelectedTool } = useZustand()
 
   return (
