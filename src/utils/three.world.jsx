@@ -1,7 +1,28 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { assertDefined } from './assert'
-import { CAMERA_FAR, CAMERA_NEAR, ENABLE_ORBIT_CONTROLS, MAP_Y_NUM, MAP_X_NUM, VIEW_DISTANCE, vec3, multiMatrix41, matrix41, matrix42, zVec3, color, LIGHT_A_HEX, LIGHT_B_HEX, LIGHT_C_HEX, BACK_COLOR, FOG_HEX, FOG_DENSITY } from './constants'
+import {
+  CAMERA_FAR,
+  CAMERA_NEAR,
+  ENABLE_ORBIT_CONTROLS,
+  MAP_Y_NUM,
+  MAP_X_NUM,
+  VIEW_DISTANCE,
+  vec3,
+  multiMatrix41,
+  matrix41,
+  matrix42,
+  zVec3,
+  color,
+  LIGHT_A_HEX,
+  LIGHT_B_HEX,
+  LIGHT_C_HEX,
+  BACK_COLOR,
+  FOG_HEX,
+  FOG_DENSITY,
+  MAP_BACK_HEX,
+  PAINT_HEX
+} from './constants'
 import { Dimension } from './dimension'
 
 export class ThreeWorld {
@@ -29,10 +50,8 @@ export class ThreeWorld {
     this.boxNum = MAP_X_NUM * MAP_Y_NUM
     this.boxInstMesh = new THREE.InstancedMesh(
       new THREE.PlaneGeometry(this.boxWidth, this.boxHeight),
-      // new THREE.SphereGeometry(this.boxWidth / 2),
       // Todo: Use shader material later
       new THREE.MeshStandardMaterial({
-        color: 'white',
         side: THREE.DoubleSide,
       }),
       this.boxNum,
@@ -91,6 +110,7 @@ export class ThreeWorld {
           matrix42.makeRotationAxis(zVec3, 0),
         )
       )
+      this.boxInstMesh.setColorAt(i, color.setHex(MAP_BACK_HEX))
     }
   }
 
@@ -130,8 +150,8 @@ export class ThreeWorld {
       const selInstanceId = this.intersection.instanceId
       if (this.prevSelInstanceId !== selInstanceId) {
         this.prevSelInstanceId = selInstanceId
-        console.log(selInstanceId)
-        this.boxInstMesh.setColorAt(selInstanceId, color.setHex(0xff0000))
+        console.log('utils#three.world#paintSelectedBox: selInstanceId: ', selInstanceId)
+        this.boxInstMesh.setColorAt(selInstanceId, color.setHex(PAINT_HEX))
         this.boxInstMesh.instanceColor.needsUpdate = true
       }
     }

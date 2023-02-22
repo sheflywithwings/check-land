@@ -21,6 +21,8 @@ export const LIGHT_B_HEX = 0x002288
 export const LIGHT_C_HEX = 0x222222
 export const FOG_HEX = 0x001f3f
 export const FOG_DENSITY = 0.002
+export const MAP_BACK_HEX = 0x111111
+export const PAINT_HEX = 0x00ff00
 
 export const BACK_COLOR = new THREE.Color(0x666666)
 
