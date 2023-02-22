@@ -16,6 +16,14 @@ export const CAMERA_NEAR = 0.01 / SCALE
 export const CAMERA_FAR = MAP_X_NUM * 2
 export const ENABLE_ORBIT_CONTROLS = true
 
+export const LIGHT_A_HEX = 0xffffff
+export const LIGHT_B_HEX = 0x002288
+export const LIGHT_C_HEX = 0x222222
+export const FOG_HEX = 0x001f3f
+export const FOG_DENSITY = 0.002
+
+export const BACK_COLOR = new THREE.Color(0x666666)
+
 export const vec3 = new THREE.Vector3()
 export const xVec3 = new THREE.Vector3(1, 0, 0)
 export const yVec3 = new THREE.Vector3(0, 1, 0)

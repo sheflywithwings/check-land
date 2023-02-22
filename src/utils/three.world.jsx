@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { assertDefined } from './assert'
-import { CAMERA_FAR, CAMERA_NEAR, ENABLE_ORBIT_CONTROLS, MAP_Y_NUM, MAP_X_NUM, VIEW_DISTANCE, vec3, multiMatrix41, matrix41, matrix42, zVec3, color } from './constants'
+import { CAMERA_FAR, CAMERA_NEAR, ENABLE_ORBIT_CONTROLS, MAP_Y_NUM, MAP_X_NUM, VIEW_DISTANCE, vec3, multiMatrix41, matrix41, matrix42, zVec3, color, LIGHT_A_HEX, LIGHT_B_HEX, LIGHT_C_HEX, BACK_COLOR, FOG_HEX, FOG_DENSITY } from './constants'
 import { Dimension } from './dimension'
 
 export class ThreeWorld {
@@ -11,6 +11,7 @@ export class ThreeWorld {
 
   constructor({ domEl }) {
     assertDefined(domEl, window)
+    this.domEl = domEl
     // Reference vars
     const elRect = domEl.getBoundingClientRect()
     const cameraNear = Dimension.realFromMeasure(CAMERA_NEAR)
@@ -30,22 +31,36 @@ export class ThreeWorld {
       new THREE.PlaneGeometry(this.boxWidth, this.boxHeight),
       // new THREE.SphereGeometry(this.boxWidth / 2),
       // Todo: Use shader material later
-      new THREE.MeshBasicMaterial({
-        color: 'gray',
+      new THREE.MeshStandardMaterial({
+        color: 'white',
         side: THREE.DoubleSide,
       }),
       this.boxNum,
     )
     this.setBoxMatrix2d()
-    // Init scene
+    // scene
+    this.scene = new THREE.Scene()
+    this.scene.background = BACK_COLOR
+    this.scene.fog = new THREE.FogExp2(FOG_HEX, FOG_DENSITY)
+    this.scene.add(this.boxInstMesh)
+    // Lights
+    const lightA = new THREE.DirectionalLight(LIGHT_A_HEX)
+    lightA.position.set(1, 1, 1)
+    this.scene.add(lightA)
+    const lightB = new THREE.DirectionalLight(LIGHT_B_HEX)
+    lightB.position.set(-1, -1, -1)
+    this.scene.add(lightB)
+    const lightC = new THREE.AmbientLight(LIGHT_C_HEX)
+    this.scene.add(lightC)
+    // Camera
     this.camera = new THREE.PerspectiveCamera(cameraFov, elRect.width / elRect.height, cameraNear, cameraFar)
     this.camera.position.z = viewDistance
-    this.scene = new THREE.Scene()
-    this.scene.add(this.boxInstMesh)
+    // Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true })
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(elRect.width, elRect.height)
-    this.domEl = domEl
+    this.renderer.shadowMap.enabled = false
+    this.renderer.outputEncoding = THREE.sRGBEncoding
     domEl.appendChild(this.renderer.domElement)
     // Orbit Controls
     this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement)
@@ -116,8 +131,8 @@ export class ThreeWorld {
       if (this.prevSelInstanceId !== selInstanceId) {
         this.prevSelInstanceId = selInstanceId
         console.log(selInstanceId)
-        // this.boxInstMesh.setColorAt(selInstanceId, color.setHex(0xff0000))
-        // this.boxInstMesh.instanceColor.needsUpdate = true
+        this.boxInstMesh.setColorAt(selInstanceId, color.setHex(0xff0000))
+        this.boxInstMesh.instanceColor.needsUpdate = true
       }
     }
   }
