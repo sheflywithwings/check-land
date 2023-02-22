@@ -101,12 +101,15 @@ export class ThreeWorld {
       /* Start to make unusable boxes */
       const boundingBoxRowNum = MAP_Y_NUM * 0.1
       const boundingBoxColNum = MAP_X_NUM * 0.1
-      if (
-        x < boundingBoxColNum ||
-        x > (MAP_X_NUM - boundingBoxColNum) ||
-        y < boundingBoxRowNum ||
-        y > (MAP_Y_NUM - boundingBoxRowNum)
-      ) {
+      // if (
+      //   x < boundingBoxColNum ||
+      //   x > (MAP_X_NUM - boundingBoxColNum) ||
+      //   y < boundingBoxRowNum ||
+      //   y > (MAP_Y_NUM - boundingBoxRowNum)
+      // ) {
+      //   this.unusableInstanceIds.push(i)
+      // }
+      if (Math.random() < 0.2) {
         this.unusableInstanceIds.push(i)
       }
       /* End to make unusable boxes */
