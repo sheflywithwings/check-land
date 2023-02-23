@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import InstancedGroupMesh from 'three-instanced-group-mesh'
 import { assertDefined } from './assert'
 import {
   CAMERA_FAR,
@@ -96,7 +97,7 @@ export class ThreeWorld {
     // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
     // Check box
-    this.checkedMapBoxInstIds = [0] // temp
+    this.checkedMapBoxInstIds = [] // temp
     const checkBoxMaterial = new THREE.MeshStandardMaterial({
       side: THREE.DoubleSide,
     })
@@ -124,7 +125,15 @@ export class ThreeWorld {
       getInstMesh: true,
       layer: 'check'
     }).then(svgGroup => {
-      this.scene.add(svgGroup)
+      const svgInstGroup = new InstancedGroupMesh(svgGroup, 2)
+      svgInstGroup.setMatrixAt(
+        1,
+        multiMatrix41.multiplyMatrices(
+          matrix41.setPosition(this.mapBoxInstPositions[1].clone().setZ(this.checkLayerZ)),
+          matrix42.makeRotationAxis(zVec3, 0),
+        )
+      )
+      this.scene.add(svgInstGroup)
     })
     // Animate
     this.animate()
@@ -247,7 +256,7 @@ export class ThreeWorld {
         if (this.checkedMapBoxInstIds.indexOf(selInstId) === -1 && this.unusableInstIds.indexOf(selInstId) === -1) {
           // console.log('utils#three.world#checkSelectedMapBox: selInstId: ', selInstId)
           const newPos = this.mapBoxInstPositions[selInstId].clone().setZ(this.checkLayerZ)
-          console.log('utils#three.world#checkSelectedMapBox: newPos: ', newPos)
+          // console.log('utils#three.world#checkSelectedMapBox: newPos: ', newPos)
           this.checkBoxInstMesh.setMatrixAt(
             selInstId,
             multiMatrix41.multiplyMatrices(
