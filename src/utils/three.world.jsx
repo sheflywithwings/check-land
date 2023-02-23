@@ -96,7 +96,7 @@ export class ThreeWorld {
     // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
     // Check box
-    this.checkedMapBoxInstIds = [0]
+    this.checkedMapBoxInstIds = [0] // temp
     const checkBoxMaterial = new THREE.MeshStandardMaterial({
       side: THREE.DoubleSide,
     })
@@ -117,7 +117,15 @@ export class ThreeWorld {
     this.rayCastingMeshes.push(this.checkBoxInstMesh)
     // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
     this.setCheckBoxMatrix2D()
-    // getSVGGroup({ url: 'assets/icons/check.svg', getInstMesh: true, layer: 'check' }).then(console.log)
+    getSVGGroup({
+      url: 'assets/icons/check.svg',
+      width: this.mapBoxWidth,
+      height: this.mapBoxHeight,
+      getInstMesh: true,
+      layer: 'check'
+    }).then(svgGroup => {
+      this.scene.add(svgGroup)
+    })
     // Animate
     this.animate()
     // Events
@@ -207,8 +215,8 @@ export class ThreeWorld {
     this.raycaster.setFromCamera(this.pointer, this.camera)
     this.raycaster.intersectObjects(this.rayCastingMeshes, true, intersections)
     if (intersections.length > 0) {
+      // console.log('utils#three.world#updateIntersectPoint: intersections: ', intersections)
       this.intersection = intersections[0]
-      // console.log('utils#three.world#updateIntersectPoint: this.intersection: ', this.intersection)
     } else {
       this.intersection = undefined
     }
