@@ -82,11 +82,20 @@ export class ThreeWorld {
     this.mapBoxWidth = this.mapWidth / MAP_X_NUM
     this.mapBoxHeight = this.mapHeight / MAP_Y_NUM
     this.mapBoxNum = MAP_X_NUM * MAP_Y_NUM
+    const mapBoxMaterial = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
+      transparent: true,
+    })
+    this.textureLoader.load('assets/icons/check.svg', texture => {
+      texture.wrapS = THREE.RepeatWrapping
+      texture.wrapT = THREE.RepeatWrapping
+      texture.repeat.set(1, 1)
+      mapBoxMaterial.map = texture
+      mapBoxMaterial.needsUpdate = true
+    })
     this.mapBoxInstMesh = new THREE.InstancedMesh(
       new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
-      new THREE.MeshStandardMaterial({
-        side: THREE.DoubleSide,
-      }),
+      mapBoxMaterial,
       this.mapBoxNum,
     )
     this.mapBoxInstMesh.userData.layer = 'map'
