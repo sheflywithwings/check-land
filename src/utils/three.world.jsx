@@ -28,6 +28,7 @@ import {
   CHECK_LAYER_Z_INDEX
 } from './constants'
 import { Dimension } from './dimension'
+import { getSVGGroup } from './svg'
 
 export class ThreeWorld {
   raycaster = new THREE.Raycaster()
@@ -72,11 +73,11 @@ export class ThreeWorld {
       side: THREE.DoubleSide,
     })
     this.textureLoader.load('assets/icons/check.svg', texture => {
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(1, 1);
-      checkBoxMaterial.map = texture;
-      checkBoxMaterial.needsUpdate = true;
+      texture.wrapS = THREE.RepeatWrapping
+      texture.wrapT = THREE.RepeatWrapping
+      texture.repeat.set(1, 1)
+      checkBoxMaterial.map = texture
+      checkBoxMaterial.needsUpdate = true
     })
     this.checkBoxInstMesh = new THREE.InstancedMesh(
       new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
@@ -86,6 +87,7 @@ export class ThreeWorld {
     this.checkBoxInstMesh.userData.layer = 'check'
     // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
     this.setCheckBoxMatrix2D()
+    getSVGGroup({ url: 'assets/icons/check.svg' }).then(console.log)
     // Scene
     this.scene = new THREE.Scene()
     this.scene.background = BACK_COLOR
