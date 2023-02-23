@@ -94,29 +94,29 @@ export class ThreeWorld {
     this.rayCastingMeshes.push(this.mapBoxInstMesh)
     // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
-    // Check box
-    this.checkedMapBoxInstIds = []
-    const checkBoxMaterial = new THREE.MeshStandardMaterial({
-      side: THREE.DoubleSide,
-      transparent: true,
-    })
-    this.textureLoader.load('assets/icons/check.svg', texture => {
-      texture.wrapS = THREE.RepeatWrapping
-      texture.wrapT = THREE.RepeatWrapping
-      texture.repeat.set(1, 1)
-      checkBoxMaterial.map = texture
-      checkBoxMaterial.needsUpdate = true
-    })
-    this.checkBoxInstMesh = new THREE.InstancedMesh(
-      new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
-      checkBoxMaterial,
-      this.mapBoxNum,
-    )
-    this.checkBoxInstMesh.userData.layer = 'check'
-    this.scene.add(this.checkBoxInstMesh)
-    this.rayCastingMeshes.push(this.checkBoxInstMesh)
+    // // Check box
+    // this.checkedMapBoxInstIds = []
+    // const checkBoxMaterial = new THREE.MeshStandardMaterial({
+    //   side: THREE.DoubleSide,
+    //   transparent: true,
+    // })
+    // this.textureLoader.load('assets/icons/check.svg', texture => {
+    //   texture.wrapS = THREE.RepeatWrapping
+    //   texture.wrapT = THREE.RepeatWrapping
+    //   texture.repeat.set(1, 1)
+    //   checkBoxMaterial.map = texture
+    //   checkBoxMaterial.needsUpdate = true
+    // })
+    // this.checkBoxInstMesh = new THREE.InstancedMesh(
+    //   new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
+    //   checkBoxMaterial,
+    //   this.mapBoxNum,
+    // )
+    // this.checkBoxInstMesh.userData.layer = 'check'
+    // this.scene.add(this.checkBoxInstMesh)
+    // this.rayCastingMeshes.push(this.checkBoxInstMesh)
     // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
-    this.setCheckBoxMatrix2D()
+    // this.setCheckBoxMatrix2D()
     // Animate
     this.animate()
     // Events
@@ -270,7 +270,7 @@ export class ThreeWorld {
       case 'fill':
         break
       case 'check':
-        this.checkSelectedMapBox()
+        // this.checkSelectedMapBox()
         break
     }
     if (this.intersection) {
@@ -293,7 +293,7 @@ export class ThreeWorld {
         case 'fill':
           break
         case 'check':
-          this.checkSelectedMapBox()
+          // this.checkSelectedMapBox()
           break
       }
     }
