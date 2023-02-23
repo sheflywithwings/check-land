@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import InstancedGroupMesh from 'three-instanced-group-mesh'
 import { assertDefined } from './assert'
 import {
   CAMERA_FAR,
@@ -96,7 +95,7 @@ export class ThreeWorld {
     // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
     // Check box
-    this.checkedMapBoxInstIds = [0] // temp
+    this.checkedMapBoxInstIds = []
     const checkBoxMaterial = new THREE.MeshStandardMaterial({
       side: THREE.DoubleSide,
       transparent: true,
