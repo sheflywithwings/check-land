@@ -246,10 +246,12 @@ export class ThreeWorld {
         const selInstId = this.intersection.instanceId
         if (this.checkedMapBoxInstIds.indexOf(selInstId) === -1 && this.unusableInstIds.indexOf(selInstId) === -1) {
           // console.log('utils#three.world#checkSelectedMapBox: selInstId: ', selInstId)
+          const newPos = this.mapBoxInstPositions[selInstId].clone().setZ(this.checkLayerZ)
+          console.log('utils#three.world#checkSelectedMapBox: newPos: ', newPos)
           this.checkBoxInstMesh.setMatrixAt(
             selInstId,
             multiMatrix41.multiplyMatrices(
-              matrix41.setPosition(this.mapBoxInstPositions[selInstId].clone().setZ(this.checkLayerZ)),
+              matrix41.setPosition(newPos),
               matrix42.makeRotationAxis(zVec3, 0),
             )
           )
