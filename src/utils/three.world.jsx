@@ -29,7 +29,6 @@ import {
   CHECK_LAYER_Z_INDEX
 } from './constants'
 import { Dimension } from './dimension'
-import { getSVGGroup } from './meshes'
 
 export class ThreeWorld {
   raycaster = new THREE.Raycaster()
@@ -119,23 +118,6 @@ export class ThreeWorld {
     this.rayCastingMeshes.push(this.checkBoxInstMesh)
     // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
     this.setCheckBoxMatrix2D()
-    getSVGGroup({
-      url: 'assets/icons/check.svg',
-      width: this.mapBoxWidth,
-      height: this.mapBoxHeight,
-      getInstMesh: true,
-      layer: 'check'
-    }).then(svgGroup => {
-      const svgInstGroup = new InstancedGroupMesh(svgGroup, 2)
-      svgInstGroup.setMatrixAt(
-        1,
-        multiMatrix41.multiplyMatrices(
-          matrix41.setPosition(this.mapBoxInstPositions[1].clone().setZ(this.checkLayerZ)),
-          matrix42.makeRotationAxis(zVec3, 0),
-        )
-      )
-      this.scene.add(svgInstGroup)
-    })
     // Animate
     this.animate()
     // Events
