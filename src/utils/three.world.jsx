@@ -105,7 +105,7 @@ export class ThreeWorld {
     // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
     // // Check box
-    // this.checkedMapBoxInstIds = []
+    // this.checkedMapBoxInstIds = [0]
     // const checkBoxMaterial = new THREE.MeshStandardMaterial({
     //   side: THREE.DoubleSide,
     //   transparent: true,
@@ -125,7 +125,7 @@ export class ThreeWorld {
     // this.checkBoxInstMesh.userData.layer = 'check'
     // this.scene.add(this.checkBoxInstMesh)
     // this.rayCastingMeshes.push(this.checkBoxInstMesh)
-    // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
+    // // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
     // this.setCheckBoxMatrix2D()
     // Animate
     this.animate()
