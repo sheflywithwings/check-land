@@ -45,31 +45,57 @@ export class ThreeWorld {
     this.mapWidth = Dimension.realFromMeasure(MAP_X_NUM)
     this.mapHeight = Dimension.realFromMeasure(MAP_Y_NUM)
     const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
-    this.mapLayerZ = Dimension.realFromMeasure(MAP_LAYER_Z_INDEX)
-    this.checkLayerZ = Dimension.realFromMeasure(CHECK_LAYER_Z_INDEX)
+    this.mapLayerZ = Dimension.realFromMeasure(MAP_LAYER_Z_INDEX) * SCALE
+    this.checkLayerZ = Dimension.realFromMeasure(CHECK_LAYER_Z_INDEX) * SCALE
     // console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
     // State vars
     this.isMouseDown = false
-    // Check box
-    this.unusableInstanceIds = []
-    this.boxInstancePositions = []
-    this.boxWidth = this.mapWidth / MAP_X_NUM
-    this.boxHeight = this.mapHeight / MAP_Y_NUM
-    this.boxNum = MAP_X_NUM * MAP_Y_NUM
-    this.boxInstMesh = new THREE.InstancedMesh(
-      new THREE.PlaneGeometry(this.boxWidth, this.boxHeight),
-      // Todo: Use shader material later
+    // Map box
+    this.unusableInstIds = []
+    this.mapBoxInstPositions = []
+    this.mapBoxWidth = this.mapWidth / MAP_X_NUM
+    this.mapBoxHeight = this.mapHeight / MAP_Y_NUM
+    this.mapBoxNum = MAP_X_NUM * MAP_Y_NUM
+    this.mapBoxInstMesh = new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
       new THREE.MeshStandardMaterial({
         side: THREE.DoubleSide,
       }),
-      this.boxNum,
+      this.mapBoxNum,
     )
+    this.mapBoxInstMesh.userData.layer = 'map'
+    // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
-    // scene
+    // Check box
+    this.checkedMapBoxInstIds = [0]
+    const checkBoxMaterial = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
+    })
+    this.textureLoader.load('assets/icons/check.svg', texture => {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(1, 1);
+      checkBoxMaterial.map = texture;
+      checkBoxMaterial.needsUpdate = true;
+    })
+    this.checkBoxInstMesh = new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
+      checkBoxMaterial,
+      this.mapBoxNum,
+    )
+    this.checkBoxInstMesh.userData.layer = 'check'
+    // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
+    this.setCheckBoxMatrix2D()
+    // Scene
     this.scene = new THREE.Scene()
     this.scene.background = BACK_COLOR
     this.scene.fog = new THREE.FogExp2(FOG_HEX, FOG_DENSITY)
-    this.scene.add(this.boxInstMesh)
+    this.scene.add(this.mapBoxInstMesh)
+    this.scene.add(this.checkBoxInstMesh)
+    this.rayCastingMeshes = [
+      this.mapBoxInstMesh,
+      this.checkBoxInstMesh,
+    ]
     // Lights
     const lightA = new THREE.DirectionalLight(LIGHT_A_HEX)
     lightA.position.set(1, 1, 1)
@@ -98,10 +124,10 @@ export class ThreeWorld {
   }
 
   setMapBoxMatrix2d = () => {
-    assertDefined(this.boxInstMesh, this.mapWidth, this.mapHeight, this.boxWidth, this.boxHeight, this.boxNum, this.unusableInstanceIds, this.boxInstancePositions, this.mapLayerZ)
+    assertDefined(this.mapBoxInstMesh, this.mapWidth, this.mapHeight, this.mapBoxWidth, this.mapBoxHeight, this.mapBoxNum, this.unusableInstIds, this.mapBoxInstPositions, this.mapLayerZ)
     const mapHalfWidth = this.mapWidth / 2
     const mapHalfHeight = this.mapHeight / 2
-    for (let i = 0; i < this.boxNum; i++) {
+    for (let i = 0; i < this.mapBoxNum; i++) {
       const x = i % MAP_X_NUM
       const y = (i - x) / MAP_X_NUM
       /* Start to make unusable boxes */
@@ -113,33 +139,48 @@ export class ThreeWorld {
       //   y < boundingBoxRowNum ||
       //   y > (MAP_Y_NUM - boundingBoxRowNum)
       // ) {
-      //   this.unusableInstanceIds.push(i)
+      //   this.unusableInstIds.push(i)
       // }
       // if (Math.random() < 0.2) {
-      //   this.unusableInstanceIds.push(i)
+      //   this.unusableInstIds.push(i)
       // }
       /* End to make unusable boxes */
-      const boxInstancePosition = vec3.clone().set(
-        -mapHalfWidth + x * this.boxWidth + this.boxWidth / 2,
-        mapHalfHeight - y * this.boxHeight - this.boxHeight / 2,
+      const boxInstPosition = vec3.clone().set(
+        -mapHalfWidth + x * this.mapBoxWidth + this.mapBoxWidth / 2,
+        mapHalfHeight - y * this.mapBoxHeight - this.mapBoxHeight / 2,
         this.mapLayerZ,
       )
-      this.boxInstancePositions.push(boxInstancePosition)
-      this.boxInstMesh.setMatrixAt(
+      this.mapBoxInstPositions.push(boxInstPosition)
+      this.mapBoxInstMesh.setMatrixAt(
         i,
         multiMatrix41.multiplyMatrices(
-          matrix41.setPosition(boxInstancePosition),
+          matrix41.setPosition(boxInstPosition),
           matrix42.makeRotationAxis(zVec3, 0),
         )
       )
-      if (this.unusableInstanceIds.indexOf(i) > -1) {
-        this.boxInstMesh.setColorAt(i, color.setHex(MAP_UNUSABLE_BACK_HEX))
+      if (this.unusableInstIds.indexOf(i) > -1) {
+        this.mapBoxInstMesh.setColorAt(i, color.setHex(MAP_UNUSABLE_BACK_HEX))
       } else {
-        this.boxInstMesh.setColorAt(i, color.setHex(MAP_BACK_HEX))
+        this.mapBoxInstMesh.setColorAt(i, color.setHex(MAP_BACK_HEX))
       }
     }
-    // console.log('utils#three.world#setMapBoxMatrix2d: this.unusableInstanceIds: ', this.unusableInstanceIds)
-    // console.log('utils#three.world#setMapBoxMatrix2d: this.boxInstancePositions: ', this.boxInstancePositions)
+    // console.log('utils#three.world#setMapBoxMatrix2d: this.unusableInstIds: ', this.unusableInstIds)
+    // console.log('utils#three.world#setMapBoxMatrix2d: this.mapBoxInstPositions: ', this.mapBoxInstPositions)
+  }
+
+  setCheckBoxMatrix2D = () => {
+    assertDefined(this.mapBoxInstPositions, this.mapBoxNum, this.mapBoxWidth, this.mapBoxHeight, this.checkedMapBoxInstIds, this.checkLayerZ)
+    for (let i = 0; i < this.mapBoxNum; i++) {
+      if (this.checkedMapBoxInstIds.indexOf(i) > -1 && this.mapBoxInstPositions[i]) {
+        this.checkBoxInstMesh.setMatrixAt(
+          i,
+          multiMatrix41.multiplyMatrices(
+            matrix41.setPosition(this.mapBoxInstPositions[i].clone().setZ(this.checkLayerZ)),
+            matrix42.makeRotationAxis(zVec3, 0),
+          )
+        )
+      }
+    }
   }
 
   updateMouseHandlers = (event) => {
@@ -156,37 +197,61 @@ export class ThreeWorld {
   }
 
   updateIntersectPoint = () => {
-    assertDefined(this.raycaster, this.pointer, this.camera, this.boxInstMesh)
+    assertDefined(this.raycaster, this.pointer, this.camera, this.rayCastingMeshes)
     if (!this.isMouseDown) {
       this.intersection = undefined
       return
     }
     const intersections = []
     this.raycaster.setFromCamera(this.pointer, this.camera)
-    this.raycaster.intersectObjects([this.boxInstMesh], true, intersections)
+    this.raycaster.intersectObjects(this.rayCastingMeshes, true, intersections)
     if (intersections.length > 0) {
-      // console.log('utils#three.world#updateIntersectPoint: intersections: ', intersections)
       this.intersection = intersections[0]
+      // console.log('utils#three.world#updateIntersectPoint: this.intersection: ', this.intersection)
     } else {
       this.intersection = undefined
     }
   }
 
-  paintSelectedBox = () => {
-    assertDefined(this.boxInstMesh, this.unusableInstanceIds)
+  paintSelectedMapBox = () => {
+    assertDefined(this.mapBoxInstMesh, this.unusableInstIds)
     if (this.intersection) {
-      const selInstanceId = this.intersection.instanceId
-      if (this.prevSelInstanceId !== selInstanceId && this.unusableInstanceIds.indexOf(selInstanceId) === -1) {
-        this.prevSelInstanceId = selInstanceId
-        // console.log('utils#three.world#paintSelectedBox: selInstanceId: ', selInstanceId)
-        this.boxInstMesh.setColorAt(selInstanceId, color.setHex(PAINT_HEX))
-        this.boxInstMesh.instanceColor.needsUpdate = true
+      const layer = this.intersection.object.userData.layer
+      if (layer === 'map') {
+        const selInstId = this.intersection.instanceId
+        if (this.prevSelInstId !== selInstId && this.unusableInstIds.indexOf(selInstId) === -1) {
+          this.prevSelInstId = selInstId
+          // console.log('utils#three.world#paintSelectedMapBox: selInstId: ', selInstId)
+          this.mapBoxInstMesh.setColorAt(selInstId, color.setHex(PAINT_HEX))
+          this.mapBoxInstMesh.instanceColor.needsUpdate = true
+        }
+      }
+    }
+  }
+
+  checkSelectedMapBox = () => {
+    assertDefined(this.checkBoxInstMesh, this.unusableInstIds, this.checkedMapBoxInstIds)
+    if (this.intersection) {
+      const layer = this.intersection.object.userData.layer
+      if (layer === 'map') {
+        const selInstId = this.intersection.instanceId
+        if (this.checkedMapBoxInstIds.indexOf(selInstId) === -1 && this.unusableInstIds.indexOf(selInstId) === -1) {
+          // console.log('utils#three.world#checkSelectedMapBox: selInstId: ', selInstId)
+          this.checkBoxInstMesh.setMatrixAt(
+            selInstId,
+            multiMatrix41.multiplyMatrices(
+              matrix41.setPosition(this.mapBoxInstPositions[selInstId].clone().setZ(this.checkLayerZ)),
+              matrix42.makeRotationAxis(zVec3, 0),
+            )
+          )
+          this.checkBoxInstMesh.instanceMatrix.needsUpdate = true
+        }
       }
     }
   }
 
   animate = () => {
-    assertDefined(this.renderer, this.scene, this.camera, this.boxInstMesh)
+    assertDefined(this.renderer, this.scene, this.camera, this.mapBoxInstMesh)
     requestAnimationFrame((t) => {
       this.animate()
       this.renderer.render(this.scene, this.camera)
@@ -202,17 +267,18 @@ export class ThreeWorld {
   }
 
   onMouseDown = ({ event, tool }) => {
-    console.log('utils#three.world#onMouseDown: tool: ', tool)
+    // console.log('utils#three.world#onMouseDown: tool: ', tool)
     assertDefined(event)
     this.isMouseDown = true
     this.updateMouseHandlers(event)
     switch (tool) {
       case 'pencil':
-        this.paintSelectedBox()
+        this.paintSelectedMapBox()
         break
       case 'fill':
         break
       case 'check':
+        this.checkSelectedMapBox()
         break
     }
     if (this.intersection) {
@@ -230,11 +296,12 @@ export class ThreeWorld {
       this.updateMouseHandlers(event)
       switch (tool) {
         case 'pencil':
-          this.paintSelectedBox()
+          this.paintSelectedMapBox()
           break
         case 'fill':
           break
         case 'check':
+          this.checkSelectedMapBox()
           break
       }
     }
