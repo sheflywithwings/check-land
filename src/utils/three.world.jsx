@@ -131,16 +131,6 @@ export class ThreeWorld {
       const x = i % MAP_X_NUM
       const y = (i - x) / MAP_X_NUM
       /* Start to make unusable boxes */
-      // const boundingBoxRowNum = MAP_Y_NUM * 0.1
-      // const boundingBoxColNum = MAP_X_NUM * 0.1
-      // if (
-      //   x < boundingBoxColNum ||
-      //   x > (MAP_X_NUM - boundingBoxColNum) ||
-      //   y < boundingBoxRowNum ||
-      //   y > (MAP_Y_NUM - boundingBoxRowNum)
-      // ) {
-      //   this.unusableInstIds.push(i)
-      // }
       // if (Math.random() < 0.2) {
       //   this.unusableInstIds.push(i)
       // }
