@@ -97,9 +97,10 @@ export class ThreeWorld {
     // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
     // Check box
-    this.checkedMapBoxInstIds = [] // temp
+    this.checkedMapBoxInstIds = [0] // temp
     const checkBoxMaterial = new THREE.MeshStandardMaterial({
       side: THREE.DoubleSide,
+      transparent: true,
     })
     this.textureLoader.load('assets/icons/check.svg', texture => {
       texture.wrapS = THREE.RepeatWrapping
