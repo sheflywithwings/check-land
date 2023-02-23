@@ -9,16 +9,17 @@ const svgLoader = new SVGLoader(svgLoadingManager)
  * Generate group using svg file
  *
  * @param {string} url svg file url starting from `public` folder
- * @param {string} fillColor color to fill group
- * @param {string} strokeColor color to draw strokes
  * @param {number} width
  * @param {number} height
+ * @param {string} fillColor color to fill group
+ * @param {string} strokeColor color to draw strokes
  * @param {boolean} drawStrokes
  * @param {boolean} drawFillShapes
  * @param {boolean} strokesWireframe
  * @param {boolean} fillShapesWireframe
  * @param {boolean} getInstMesh return group containing instance meshes
  * @param {number} instCount instance count
+ * @param {string} layer layer name
  * @return {number} svg based group
  */
 export const getSVGGroup = async ({
