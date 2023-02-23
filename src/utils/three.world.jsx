@@ -99,8 +99,8 @@ export class ThreeWorld {
       const x = i % MAP_X_NUM
       const y = (i - x) / MAP_X_NUM
       /* Start to make unusable boxes */
-      const boundingBoxRowNum = MAP_Y_NUM * 0.1
-      const boundingBoxColNum = MAP_X_NUM * 0.1
+      // const boundingBoxRowNum = MAP_Y_NUM * 0.1
+      // const boundingBoxColNum = MAP_X_NUM * 0.1
       // if (
       //   x < boundingBoxColNum ||
       //   x > (MAP_X_NUM - boundingBoxColNum) ||
@@ -109,9 +109,9 @@ export class ThreeWorld {
       // ) {
       //   this.unusableInstanceIds.push(i)
       // }
-      if (Math.random() < 0.2) {
-        this.unusableInstanceIds.push(i)
-      }
+      // if (Math.random() < 0.2) {
+      //   this.unusableInstanceIds.push(i)
+      // }
       /* End to make unusable boxes */
       this.boxInstMesh.setMatrixAt(
         i,
