@@ -14,7 +14,10 @@ export const SCALE = 0.001
 export const VIEW_DISTANCE = MAP_X_NUM
 export const CAMERA_NEAR = 0.01 / SCALE
 export const CAMERA_FAR = MAP_X_NUM * 2
-export const ENABLE_ORBIT_CONTROLS = false
+export const ENABLE_ORBIT_CONTROLS = true
+
+export const MAP_LAYER_Z_INDEX = 0
+export const CHECK_LAYER_Z_INDEX = 1
 
 export const LIGHT_A_HEX = 0xffffff
 export const LIGHT_B_HEX = 0x002288

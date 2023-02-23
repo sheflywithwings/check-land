@@ -22,7 +22,10 @@ import {
   FOG_DENSITY,
   MAP_BACK_HEX,
   PAINT_HEX,
-  MAP_UNUSABLE_BACK_HEX
+  MAP_UNUSABLE_BACK_HEX,
+  MAP_LAYER_Z_INDEX,
+  SCALE,
+  CHECK_LAYER_Z_INDEX
 } from './constants'
 import { Dimension } from './dimension'
 
@@ -42,11 +45,14 @@ export class ThreeWorld {
     this.mapWidth = Dimension.realFromMeasure(MAP_X_NUM)
     this.mapHeight = Dimension.realFromMeasure(MAP_Y_NUM)
     const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
+    this.mapLayerZ = Dimension.realFromMeasure(MAP_LAYER_Z_INDEX)
+    this.checkLayerZ = Dimension.realFromMeasure(CHECK_LAYER_Z_INDEX)
     // console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
     // State vars
     this.isMouseDown = false
     // Check box
     this.unusableInstanceIds = []
+    this.boxInstancePositions = []
     this.boxWidth = this.mapWidth / MAP_X_NUM
     this.boxHeight = this.mapHeight / MAP_Y_NUM
     this.boxNum = MAP_X_NUM * MAP_Y_NUM
@@ -58,7 +64,7 @@ export class ThreeWorld {
       }),
       this.boxNum,
     )
-    this.setBoxMatrix2d()
+    this.setMapBoxMatrix2d()
     // scene
     this.scene = new THREE.Scene()
     this.scene.background = BACK_COLOR
@@ -91,8 +97,8 @@ export class ThreeWorld {
     window.addEventListener('resize', this.onWindowResize)
   }
 
-  setBoxMatrix2d = () => {
-    assertDefined(this.boxInstMesh, this.mapWidth, this.mapHeight, this.boxWidth, this.boxHeight, this.boxNum, this.unusableInstanceIds)
+  setMapBoxMatrix2d = () => {
+    assertDefined(this.boxInstMesh, this.mapWidth, this.mapHeight, this.boxWidth, this.boxHeight, this.boxNum, this.unusableInstanceIds, this.boxInstancePositions, this.mapLayerZ)
     const mapHalfWidth = this.mapWidth / 2
     const mapHalfHeight = this.mapHeight / 2
     for (let i = 0; i < this.boxNum; i++) {
@@ -113,14 +119,16 @@ export class ThreeWorld {
       //   this.unusableInstanceIds.push(i)
       // }
       /* End to make unusable boxes */
+      const boxInstancePosition = vec3.clone().set(
+        -mapHalfWidth + x * this.boxWidth + this.boxWidth / 2,
+        mapHalfHeight - y * this.boxHeight - this.boxHeight / 2,
+        this.mapLayerZ,
+      )
+      this.boxInstancePositions.push(boxInstancePosition)
       this.boxInstMesh.setMatrixAt(
         i,
         multiMatrix41.multiplyMatrices(
-          matrix41.setPosition(vec3.clone().set(
-            -mapHalfWidth + x * this.boxWidth + this.boxWidth / 2,
-            mapHalfHeight - y * this.boxHeight - this.boxHeight / 2,
-            0
-          )),
+          matrix41.setPosition(boxInstancePosition),
           matrix42.makeRotationAxis(zVec3, 0),
         )
       )
@@ -130,7 +138,8 @@ export class ThreeWorld {
         this.boxInstMesh.setColorAt(i, color.setHex(MAP_BACK_HEX))
       }
     }
-    console.log('utils#three.world#setBoxMatrix2d: this.unusableInstanceIds: ', this.unusableInstanceIds)
+    // console.log('utils#three.world#setMapBoxMatrix2d: this.unusableInstanceIds: ', this.unusableInstanceIds)
+    // console.log('utils#three.world#setMapBoxMatrix2d: this.boxInstancePositions: ', this.boxInstancePositions)
   }
 
   updateMouseHandlers = (event) => {
@@ -169,7 +178,7 @@ export class ThreeWorld {
       const selInstanceId = this.intersection.instanceId
       if (this.prevSelInstanceId !== selInstanceId && this.unusableInstanceIds.indexOf(selInstanceId) === -1) {
         this.prevSelInstanceId = selInstanceId
-        console.log('utils#three.world#paintSelectedBox: selInstanceId: ', selInstanceId)
+        // console.log('utils#three.world#paintSelectedBox: selInstanceId: ', selInstanceId)
         this.boxInstMesh.setColorAt(selInstanceId, color.setHex(PAINT_HEX))
         this.boxInstMesh.instanceColor.needsUpdate = true
       }

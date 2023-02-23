@@ -1,8 +1,8 @@
 import { floatStrTrim } from './common'
-import { DIM_MILLIMETER, FLOAT_DIGITS, SCALE } from './constants'
+import { DIM_CENTIMETER, FLOAT_DIGITS, SCALE } from './constants'
 
 let config = {
-  dimUnit: DIM_MILLIMETER,
+  dimUnit: DIM_CENTIMETER,
   scale: SCALE,
 }
 
