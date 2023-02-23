@@ -25,7 +25,8 @@ import {
   MAP_UNUSABLE_BACK_HEX,
   MAP_LAYER_Z_INDEX,
   SCALE,
-  CHECK_LAYER_Z_INDEX
+  CHECK_LAYER_Z_INDEX,
+  MAP_GAP_PERCENT
 } from './constants'
 import { Dimension } from './dimension'
 
@@ -79,8 +80,8 @@ export class ThreeWorld {
     // Map box
     this.unusableInstIds = []
     this.mapBoxInstPositions = []
-    this.mapBoxWidth = this.mapWidth / MAP_X_NUM
-    this.mapBoxHeight = this.mapHeight / MAP_Y_NUM
+    this.mapBoxWidth = (this.mapWidth / MAP_X_NUM) * (1 - MAP_GAP_PERCENT)
+    this.mapBoxHeight = (this.mapHeight / MAP_Y_NUM) * (1 - MAP_GAP_PERCENT)
     this.mapBoxNum = MAP_X_NUM * MAP_Y_NUM
     const mapBoxMaterial = new THREE.MeshStandardMaterial({
       side: THREE.DoubleSide,
@@ -134,6 +135,8 @@ export class ThreeWorld {
 
   setMapBoxMatrix2d = () => {
     assertDefined(this.mapBoxInstMesh, this.mapWidth, this.mapHeight, this.mapBoxWidth, this.mapBoxHeight, this.mapBoxNum, this.unusableInstIds, this.mapBoxInstPositions, this.mapLayerZ)
+    const mapBoxOutWidth = this.mapBoxWidth / (1 - MAP_GAP_PERCENT)
+    const mapBoxOutHeight = this.mapBoxHeight / (1 - MAP_GAP_PERCENT)
     const mapHalfWidth = this.mapWidth / 2
     const mapHalfHeight = this.mapHeight / 2
     for (let i = 0; i < this.mapBoxNum; i++) {
@@ -145,8 +148,8 @@ export class ThreeWorld {
       // }
       /* End to make unusable boxes */
       const boxInstPosition = vec3.clone().set(
-        -mapHalfWidth + x * this.mapBoxWidth + this.mapBoxWidth / 2,
-        mapHalfHeight - y * this.mapBoxHeight - this.mapBoxHeight / 2,
+        -mapHalfWidth + x * mapBoxOutWidth + mapBoxOutWidth / 2,
+        mapHalfHeight - y * mapBoxOutHeight - mapBoxOutHeight / 2,
         this.mapLayerZ,
       )
       this.mapBoxInstPositions.push(boxInstPosition)
