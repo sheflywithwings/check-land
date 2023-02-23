@@ -1,17 +1,8 @@
-import {
-  LoadingManager,
-  Group,
-  MeshBasicMaterial,
-  Color,
-  DoubleSide,
-  ShapeGeometry,
-  Mesh,
-  Box3,
-} from 'three'
+import * as THREE from 'three'
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader'
 import { assertDefined } from './assert'
 
-const svgLoadingManager = new LoadingManager()
+const svgLoadingManager = new THREE.LoadingManager()
 const svgLoader = new SVGLoader(svgLoadingManager)
 
 /**
@@ -26,24 +17,29 @@ const svgLoader = new SVGLoader(svgLoadingManager)
  * @param {boolean} drawFillShapes
  * @param {boolean} strokesWireframe
  * @param {boolean} fillShapesWireframe
+ * @param {boolean} getInstMesh return group containing instance meshes
+ * @param {number} instCount instance count
  * @return {number} svg based group
  */
-export async function getSVGGroup({
+export const getSVGGroup = async ({
   url,
-  fillColor,
-  strokeColor,
-  width = 2,
-  height = 0,
+  width = 1,
+  height = 1,
+  fillColor = undefined,
+  strokeColor = undefined,
   drawStrokes = true,
   drawFillShapes = true,
   strokesWireframe = false,
   fillShapesWireframe = false,
-}) {
+  getInstMesh = false,
+  instCount = 1,
+  layer = undefined,
+}) => {
   assertDefined(url)
   const svgData = await svgLoader.loadAsync(url)
   const paths = svgData.paths
-  const group = new Group()
-  const svgGroup = new Group()
+  const group = new THREE.Group()
+  const svgGroup = new THREE.Group()
 
   for (let i = 0; i < paths.length; i++) {
     const path = paths[i]
@@ -55,11 +51,11 @@ export async function getSVGGroup({
     }
 
     if (drawFillShapes && fillColor !== undefined && fillColor !== 'none') {
-      const material = new MeshBasicMaterial({
-        color: new Color().setStyle(fillColor).convertSRGBToLinear(),
+      const material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color().setStyle(fillColor).convertSRGBToLinear(),
         opacity: path.userData.style.fillOpacity,
         transparent: true,
-        side: DoubleSide,
+        side: THREE.DoubleSide,
         // depthWrite: false,
         wireframe: fillShapesWireframe,
       })
@@ -67,18 +63,24 @@ export async function getSVGGroup({
 
       for (let j = 0; j < shapes.length; j++) {
         const shape = shapes[j]
-        const geometry = new ShapeGeometry(shape)
-        const mesh = new Mesh(geometry, material)
+        const geometry = new THREE.ShapeGeometry(shape)
+        let mesh
+        if (getInstMesh && instCount) {
+          mesh = new THREE.InstancedMesh(geometry, material, instCount)
+        } else {
+          mesh = new THREE.Mesh(geometry, material)
+        }
+        if (layer) mesh.userData.layer = layer
         group.add(mesh)
       }
     }
 
     if (drawStrokes && strokeColor !== undefined && strokeColor !== 'none') {
-      const material = new MeshBasicMaterial({
-        color: new Color().setStyle(strokeColor).convertSRGBToLinear(),
+      const material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color().setStyle(strokeColor).convertSRGBToLinear(),
         opacity: path.userData.style.strokeOpacity,
         transparent: true,
-        side: DoubleSide,
+        side: THREE.DoubleSide,
         // depthWrite: false,
         wireframe: strokesWireframe,
       })
@@ -88,14 +90,20 @@ export async function getSVGGroup({
         const geometry = SVGLoader.pointsToStroke(subPath.getPoints(), path.userData.style)
 
         if (geometry) {
-          const mesh = new Mesh(geometry, material)
+          let mesh
+          if (getInstMesh && instCount) {
+            mesh = new THREE.InstancedMesh(geometry, material, instCount)
+          } else {
+            mesh = new THREE.Mesh(geometry, material)
+          }
+          if (layer) mesh.userData.layer = layer
           group.add(mesh)
         }
       }
     }
   }
 
-  const groupBox3 = new Box3()
+  const groupBox3 = new THREE.Box3()
   groupBox3.setFromObject(group)
   const groupSize = groupBox3.max.sub(groupBox3.min)
   let scaleX = 0
@@ -128,4 +136,12 @@ export async function getSVGGroup({
   group.scale.y *= - 1
   svgGroup.add(group)
   return svgGroup
+}
+
+export const setGroupInstMeshMatrixAt = ({ group, index, matrix4 }) => {
+  group.traverse(child => {
+    if (child instanceof THREE.InstancedMesh) {
+      child.setMatrixAt(index, matrix4)
+    }
+  })
 }

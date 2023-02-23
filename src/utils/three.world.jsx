@@ -28,7 +28,7 @@ import {
   CHECK_LAYER_Z_INDEX
 } from './constants'
 import { Dimension } from './dimension'
-import { getSVGGroup } from './svg'
+import { getSVGGroup } from './meshes'
 
 export class ThreeWorld {
   raycaster = new THREE.Raycaster()
@@ -48,56 +48,14 @@ export class ThreeWorld {
     const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
     this.mapLayerZ = Dimension.realFromMeasure(MAP_LAYER_Z_INDEX) * SCALE
     this.checkLayerZ = Dimension.realFromMeasure(CHECK_LAYER_Z_INDEX) * SCALE
+    this.rayCastingMeshes = []
     // console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
     // State vars
     this.isMouseDown = false
-    // Map box
-    this.unusableInstIds = []
-    this.mapBoxInstPositions = []
-    this.mapBoxWidth = this.mapWidth / MAP_X_NUM
-    this.mapBoxHeight = this.mapHeight / MAP_Y_NUM
-    this.mapBoxNum = MAP_X_NUM * MAP_Y_NUM
-    this.mapBoxInstMesh = new THREE.InstancedMesh(
-      new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
-      new THREE.MeshStandardMaterial({
-        side: THREE.DoubleSide,
-      }),
-      this.mapBoxNum,
-    )
-    this.mapBoxInstMesh.userData.layer = 'map'
-    // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
-    this.setMapBoxMatrix2d()
-    // Check box
-    this.checkedMapBoxInstIds = [0]
-    const checkBoxMaterial = new THREE.MeshStandardMaterial({
-      side: THREE.DoubleSide,
-    })
-    this.textureLoader.load('assets/icons/check.svg', texture => {
-      texture.wrapS = THREE.RepeatWrapping
-      texture.wrapT = THREE.RepeatWrapping
-      texture.repeat.set(1, 1)
-      checkBoxMaterial.map = texture
-      checkBoxMaterial.needsUpdate = true
-    })
-    this.checkBoxInstMesh = new THREE.InstancedMesh(
-      new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
-      checkBoxMaterial,
-      this.mapBoxNum,
-    )
-    this.checkBoxInstMesh.userData.layer = 'check'
-    // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
-    this.setCheckBoxMatrix2D()
-    getSVGGroup({ url: 'assets/icons/check.svg' }).then(console.log)
     // Scene
     this.scene = new THREE.Scene()
     this.scene.background = BACK_COLOR
     this.scene.fog = new THREE.FogExp2(FOG_HEX, FOG_DENSITY)
-    this.scene.add(this.mapBoxInstMesh)
-    this.scene.add(this.checkBoxInstMesh)
-    this.rayCastingMeshes = [
-      this.mapBoxInstMesh,
-      this.checkBoxInstMesh,
-    ]
     // Lights
     const lightA = new THREE.DirectionalLight(LIGHT_A_HEX)
     lightA.position.set(1, 1, 1)
@@ -119,6 +77,47 @@ export class ThreeWorld {
     domEl.appendChild(this.renderer.domElement)
     // Orbit Controls
     this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement)
+    // Map box
+    this.unusableInstIds = []
+    this.mapBoxInstPositions = []
+    this.mapBoxWidth = this.mapWidth / MAP_X_NUM
+    this.mapBoxHeight = this.mapHeight / MAP_Y_NUM
+    this.mapBoxNum = MAP_X_NUM * MAP_Y_NUM
+    this.mapBoxInstMesh = new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
+      new THREE.MeshStandardMaterial({
+        side: THREE.DoubleSide,
+      }),
+      this.mapBoxNum,
+    )
+    this.mapBoxInstMesh.userData.layer = 'map'
+    this.scene.add(this.mapBoxInstMesh)
+    this.rayCastingMeshes.push(this.mapBoxInstMesh)
+    // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
+    this.setMapBoxMatrix2d()
+    // Check box
+    this.checkedMapBoxInstIds = [0]
+    const checkBoxMaterial = new THREE.MeshStandardMaterial({
+      side: THREE.DoubleSide,
+    })
+    this.textureLoader.load('assets/icons/check.svg', texture => {
+      texture.wrapS = THREE.RepeatWrapping
+      texture.wrapT = THREE.RepeatWrapping
+      texture.repeat.set(1, 1)
+      checkBoxMaterial.map = texture
+      checkBoxMaterial.needsUpdate = true
+    })
+    this.checkBoxInstMesh = new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(this.mapBoxWidth, this.mapBoxHeight),
+      checkBoxMaterial,
+      this.mapBoxNum,
+    )
+    this.checkBoxInstMesh.userData.layer = 'check'
+    this.scene.add(this.checkBoxInstMesh)
+    this.rayCastingMeshes.push(this.checkBoxInstMesh)
+    // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
+    this.setCheckBoxMatrix2D()
+    // getSVGGroup({ url: 'assets/icons/check.svg', getInstMesh: true, layer: 'check' }).then(console.log)
     // Animate
     this.animate()
     // Events
