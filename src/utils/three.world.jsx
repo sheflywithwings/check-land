@@ -272,43 +272,68 @@ export class ThreeWorld {
   }
 
   onMouseDown = ({ event, tool }) => {
+    // console.log('utils#three.world#onMouseDown: event: ', event)
     // console.log('utils#three.world#onMouseDown: tool: ', tool)
     assertDefined(event)
-    this.isMouseDown = true
-    this.updateMouseHandlers(event)
-    switch (tool) {
-      case 'pencil':
-        this.paintSelectedMapBox()
+    switch (event.button) {
+      case 0: // main button (left button)
+        this.isMouseDown = true
+        this.updateMouseHandlers(event)
+        switch (tool) {
+          case 'pencil':
+            this.paintSelectedMapBox()
+            break
+          case 'fill':
+            break
+          case 'check':
+            // this.checkSelectedMapBox()
+            break
+        }
+        if (this.intersection) {
+          this.orbitControls.enableRotate = false
+          this.isOnMap = true
+        } else {
+          this.orbitControls.enableRotate = ENABLE_ORBIT_CONTROLS
+          this.isOnMap = false
+        }
         break
-      case 'fill':
+      case 1: // wheel button (middle button if present)
         break
-      case 'check':
-        // this.checkSelectedMapBox()
+      case 2: // secondary button (right button)
         break
-    }
-    if (this.intersection) {
-      this.orbitControls.enableRotate = false
-      this.isOnMap = true
-    } else {
-      this.orbitControls.enableRotate = ENABLE_ORBIT_CONTROLS
-      this.isOnMap = false
+      case 3: // fourth button (back button)
+        break
+      case 4: // fifth button (forward button)
+        break
     }
   }
 
   onMouseMove = ({ event, tool }) => {
     assertDefined(event)
-    if (this.isMouseDown && this.isOnMap) {
-      this.updateMouseHandlers(event)
-      switch (tool) {
-        case 'pencil':
-          this.paintSelectedMapBox()
-          break
-        case 'fill':
-          break
-        case 'check':
-          // this.checkSelectedMapBox()
-          break
-      }
+    switch (event.button) {
+      case 0: // main button (left button)
+        if (this.isMouseDown && this.isOnMap) {
+          this.updateMouseHandlers(event)
+          switch (tool) {
+            case 'pencil':
+              this.paintSelectedMapBox()
+              break
+            case 'fill':
+              break
+            case 'check':
+              // this.checkSelectedMapBox()
+              break
+          }
+        }
+        break
+      case 1: // wheel button (middle button if present)
+        break
+      case 2: // secondary button (right button)
+        break
+      case 3: // fourth button (back button)
+        break
+      case 4: // fifth button (forward button)
+        break
     }
   }
 
