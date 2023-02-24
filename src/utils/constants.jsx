@@ -8,13 +8,13 @@ export const DIM_MILLIMETER = 'mm'
 
 export const FLOAT_DIGITS = 10
 
-export const MAP_X_NUM = 50
-export const MAP_Y_NUM = 50
+export const MAP_X_NUM = 100 // max: 1000
+export const MAP_Y_NUM = 50 // max: 500
 export const SCALE = 0.00001
 export const VIEW_DISTANCE = MAP_X_NUM * 2
 export const CAMERA_NEAR = 1
 export const CAMERA_FAR = MAP_X_NUM * 4
-export const ENABLE_ORBIT_CONTROLS = true
+export const ENABLE_ORBIT_CONTROLS = false
 export const MAP_GAP_PERCENT = 0.1 // range: 0 ~ 1
 
 export const MAP_LAYER_Z_INDEX = 0
