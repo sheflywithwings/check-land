@@ -45,7 +45,8 @@ export class ThreeWorld {
     const viewDistance = Dimension.realFromMeasure(VIEW_DISTANCE)
     this.mapWidth = Dimension.realFromMeasure(MAP_X_NUM)
     this.mapHeight = Dimension.realFromMeasure(MAP_Y_NUM)
-    const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
+    // const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
+    const cameraFov = 60
     this.mapLayerZ = Dimension.realFromMeasure(MAP_LAYER_Z_INDEX) * SCALE
     this.checkLayerZ = Dimension.realFromMeasure(CHECK_LAYER_Z_INDEX) * SCALE
     this.rayCastingMeshes = []
