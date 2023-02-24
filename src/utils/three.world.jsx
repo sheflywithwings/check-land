@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import Stats from 'stats-js'
 import { assertDefined } from './assert'
 import {
   CAMERA_FAR,
@@ -129,6 +130,9 @@ export class ThreeWorld {
     // this.scene.add(this.checkBoxInstMesh)
     // this.rayCastingMeshes.push(this.checkBoxInstMesh)
     // this.setCheckBoxMatrix2D()
+    // Stats
+    this.stats = new Stats()
+    domEl.appendChild(this.stats.dom)
     // Animate
     this.animate()
     // Events
@@ -260,7 +264,9 @@ export class ThreeWorld {
     assertDefined(this.renderer, this.scene, this.camera, this.mapBoxInstMesh)
     requestAnimationFrame((t) => {
       this.animate()
+      this.stats.begin()
       this.renderer.render(this.scene, this.camera)
+      this.stats.end()
     })
   }
 

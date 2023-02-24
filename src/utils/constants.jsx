@@ -8,8 +8,8 @@ export const DIM_MILLIMETER = 'mm'
 
 export const FLOAT_DIGITS = 10
 
-export const MAP_X_NUM = 100 // max: 1000
-export const MAP_Y_NUM = 50 // max: 500
+export const MAP_X_NUM = 200 // max: 1000
+export const MAP_Y_NUM = 200 // max: 500
 export const SCALE = 0.00001
 export const VIEW_DISTANCE = MAP_X_NUM / 3
 export const CAMERA_NEAR = 1
