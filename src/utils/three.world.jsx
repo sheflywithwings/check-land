@@ -78,6 +78,9 @@ export class ThreeWorld {
     domEl.appendChild(this.renderer.domElement)
     // Orbit Controls
     this.orbitControls = new OrbitControls(this.camera, this.renderer.domElement)
+    const diff = Math.max(this.mapWidth, this.mapHeight) / 2
+    this.orbitControls.minDistance = cameraNear * 2
+    this.orbitControls.maxDistance = cameraFar - diff
     // Map box
     this.unusableInstIds = []
     this.mapBoxInstPositions = []

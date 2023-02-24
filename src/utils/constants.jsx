@@ -14,7 +14,7 @@ export const SCALE = 0.00001
 export const VIEW_DISTANCE = MAP_X_NUM / 3
 export const CAMERA_NEAR = 1
 export const CAMERA_FAR = MAP_X_NUM * 4
-export const ENABLE_ORBIT_CONTROLS = false
+export const ENABLE_ORBIT_CONTROLS = true
 export const MAP_GAP_PERCENT = 0.01 // range: 0 ~ 1
 
 export const MAP_LAYER_Z_INDEX = 0
