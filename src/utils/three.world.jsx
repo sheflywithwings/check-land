@@ -45,12 +45,12 @@ export class ThreeWorld {
     const viewDistance = Dimension.realFromMeasure(VIEW_DISTANCE)
     this.mapWidth = Dimension.realFromMeasure(MAP_X_NUM)
     this.mapHeight = Dimension.realFromMeasure(MAP_Y_NUM)
-    // const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) + 2
+    // const cameraFov = 2 * Math.atan(this.mapHeight / (2 * viewDistance)) * (180 / Math.PI) // to fit map to screen height
+    // console.log('cameraFov: ', cameraFov)
     const cameraFov = 60
     this.mapLayerZ = Dimension.realFromMeasure(MAP_LAYER_Z_INDEX) * SCALE
     this.checkLayerZ = Dimension.realFromMeasure(CHECK_LAYER_Z_INDEX) * SCALE
     this.rayCastingMeshes = []
-    // console.log('utils#three.world#constructor: cameraFov: ', cameraFov)
     // State vars
     this.isMouseDown = false
     // Scene
@@ -106,7 +106,6 @@ export class ThreeWorld {
     this.mapBoxInstMesh.userData.layer = 'map'
     this.scene.add(this.mapBoxInstMesh)
     this.rayCastingMeshes.push(this.mapBoxInstMesh)
-    // console.log('utils#three.world#constructor: this.mapBoxInstMesh: ', this.mapBoxInstMesh)
     this.setMapBoxMatrix2d()
     // // Check box
     // this.checkedMapBoxInstIds = [0]
@@ -129,7 +128,6 @@ export class ThreeWorld {
     // this.checkBoxInstMesh.userData.layer = 'check'
     // this.scene.add(this.checkBoxInstMesh)
     // this.rayCastingMeshes.push(this.checkBoxInstMesh)
-    // // console.log('utils#three.world#constructor: this.checkBoxInstMesh: ', this.checkBoxInstMesh)
     // this.setCheckBoxMatrix2D()
     // Animate
     this.animate()
@@ -170,8 +168,8 @@ export class ThreeWorld {
         this.mapBoxInstMesh.setColorAt(i, color.setHex(MAP_BACK_HEX))
       }
     }
-    // console.log('utils#three.world#setMapBoxMatrix2d: this.unusableInstIds: ', this.unusableInstIds)
-    // console.log('utils#three.world#setMapBoxMatrix2d: this.mapBoxInstPositions: ', this.mapBoxInstPositions)
+    // console.log('this.unusableInstIds: ', this.unusableInstIds)
+    // console.log('this.mapBoxInstPositions: ', this.mapBoxInstPositions)
   }
 
   setCheckBoxMatrix2D = () => {
@@ -212,7 +210,7 @@ export class ThreeWorld {
     this.raycaster.setFromCamera(this.pointer, this.camera)
     this.raycaster.intersectObjects(this.rayCastingMeshes, true, intersections)
     if (intersections.length > 0) {
-      // console.log('utils#three.world#updateIntersectPoint: intersections: ', intersections)
+      // console.log('intersections: ', intersections)
       this.intersection = intersections[0]
     } else {
       this.intersection = undefined
@@ -227,7 +225,7 @@ export class ThreeWorld {
         const selInstId = this.intersection.instanceId
         if (this.prevSelInstId !== selInstId && this.unusableInstIds.indexOf(selInstId) === -1) {
           this.prevSelInstId = selInstId
-          // console.log('utils#three.world#paintSelectedMapBox: selInstId: ', selInstId)
+          // console.log('selInstId: ', selInstId)
           this.mapBoxInstMesh.setColorAt(selInstId, color.setHex(PAINT_HEX))
           this.mapBoxInstMesh.instanceColor.needsUpdate = true
         }
@@ -242,9 +240,9 @@ export class ThreeWorld {
       if (layer === 'map') {
         const selInstId = this.intersection.instanceId
         if (this.checkedMapBoxInstIds.indexOf(selInstId) === -1 && this.unusableInstIds.indexOf(selInstId) === -1) {
-          // console.log('utils#three.world#checkSelectedMapBox: selInstId: ', selInstId)
+          // console.log('selInstId: ', selInstId)
           const newPos = this.mapBoxInstPositions[selInstId].clone().setZ(this.checkLayerZ)
-          // console.log('utils#three.world#checkSelectedMapBox: newPos: ', newPos)
+          // console.log('newPos: ', newPos)
           this.checkBoxInstMesh.setMatrixAt(
             selInstId,
             multiMatrix41.multiplyMatrices(
@@ -275,8 +273,8 @@ export class ThreeWorld {
   }
 
   onMouseDown = ({ event, tool }) => {
-    // console.log('utils#three.world#onMouseDown: event: ', event)
-    // console.log('utils#three.world#onMouseDown: tool: ', tool)
+    // console.log('event: ', event)
+    // console.log('tool: ', tool)
     assertDefined(event)
     switch (event.button) {
       case 0: // main button (left button)

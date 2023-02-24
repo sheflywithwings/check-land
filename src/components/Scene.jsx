@@ -15,7 +15,7 @@ export const Scene = () => {
       sceneRef.current.innerHTML = ''
       sceneRef.current.appendChild(el)
       const newThreeWorld = new ThreeWorld({ domEl: el })
-      // console.log('Scene#useEffect: newThreeWorld: ', newThreeWorld)
+      // console.log('newThreeWorld: ', newThreeWorld)
       setThreeWorld(newThreeWorld)
       isFirstRender = false
     }
